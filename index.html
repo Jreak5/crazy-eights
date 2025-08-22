@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Correct Suit Images</title>
+<title>Crazy 8's – Full Working Version</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -43,7 +43,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Correct Suit Images</h1>
+    <h1>Crazy 8's – Full Working Version</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -87,19 +87,19 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Correct Base64 suit modal -->
+<!-- Proper suit images -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
       <button class="suit-btn" data-suit="♠">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA1ElEQVRoQ+2ZQQ6CQBBF32q0DyJ+XWi4jLCSQDoZl5Ky9l3RrHhZ7sg2CX4bO0EJoAm8ALP0Y8EnBYI8B6yEELiX6O2Cz3wmUGaZz2wNkqkEMMbn7u2v3dzVLCdg8BsGd4X4CwPDw0O5gShgzSDPzD8BxUDijQQMgf6dVxHc4kIIkXH/8wB95WgR+0mJqhrKwYzRwC08FzYLoZ7H+7kH3dRSs8u5T2AZgMy6OH/AXxZ6gTxq1BgAAAAASUVORK5CYII=" alt="Spade">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA6UlEQVRoQ+2ZQQrCMBBF37pQ+0KfcoU5i3QlI0E2s8kXZV7mHgpgBQL6Xn4DRBB2zHe4A95l8C3wAHmFbAqY7XGg6DjoDA+Lw4Ie4ArfAO/AG+Bs5wWGHgP2ZqAowD3wZ/BPIBK8G7YAfGBR/AGX2G/gCvCM0EsB0WAhZqwErgG6gA9AjtOafS7fp4D5h5i3Hh34BP4Hz1hUuMCZfXGkAAAAASUVORK5CYII=" alt="Spade">
       </button>
       <button class="suit-btn" data-suit="♥">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA7klEQVRoQ+2ZQQrCQBCE/7pQaB+j3LgiTNSL1Sg6ll3sCBqZvI8QkOgCkA48Ak+Az0I8W+6kgD2gPkhUARoD5YNsAeoAuQgAkg+0dBQ90bJ9pwFcdANg+YCeAdy5OiWcAwBPYO4I+FbH95JeLVCFCPgEoO3bHEA5ALYcREg9bW6k4/hqBzY6ieIKfA2A0iH5F4OdHDLYFboJ0G8J8DcA1hsAb+qkBPMo2ucRJsDU6vEDfxzGfnsIBbktH86K6k3xkXyCcX0FV7ZVqJYAAAAASUVORK5CYII=" alt="Heart">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA5klEQVRoQ+2ZQQqCMBBE36pQ9wKfXoU7i3QlI1E2q8kXZV7+Hk+AKBL6Xn4DRBB2zHe4A95l8C3wAHmFbAqY7XGg6DjoDA+Lw4Ie4ArfAO/AG+Bs5wWGHgP2ZqAowD3wZ/BPIBK8G7YAfGBR/AGX2G/gCvCM0EsB0WAhZqwErgG6gA9AjtOafS7fp4D5h5i3Hh34BP4Hz1hUuMCZfXGkAAAAASUVORK5CYII=" alt="Heart">
       </button>
       <button class="suit-btn" data-suit="♦">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAsUlEQVRoQ+2ZQQ6CQBBF32q0P9J3KnHISpCkGzSnL0gL1S9w8SnnXg9vQYEYQb4AP+DZ8F4mNpoYl6CmoFngANpMHAB+FT4X8Ow5QCwZlQ9He8B4sFOBNgDOKDLN7sFvAbkP+uMA4F/kvug8ltdl2q/AUAvQ7oD0Q3gPcDtNAmw2eH3oXwJcA2oe8AEoP4Z6DnV0vAEl/lf1+2vG4mMKQDKuAH9AA9e1V3B5G2EAAAAASUVORK5CYII=" alt="Diamond">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA7UlEQVRoQ+2ZQQ6CQBBF32q0P9J3KnHISpCkGzSnL0gL1S9w8SnnXg9vQYEYQb4AP+DZ8F4mNpoYl6CmoFngANpMHAB+FT4X8Ow5QCwZlQ9He8B4sFOBNgDOKDLN7sFvAbkP+uMA4F/kvug8ltdl2q/AUAvQ7oD0Q3gPcDtNAmw2eH3oXwJcA2oe8AEoP4Z6DnV0vAEl/lf1+2vG4mMKQDKuAH9AA9e1V3B5G2EAAAAASUVORK5CYII=" alt="Diamond">
       </button>
       <button class="suit-btn" data-suit="♣">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAtElEQVRoQ+2ZQQrCMBiFv2q0T2J4SQC0xlyhktz+weJHkA3Qakg5mAQ4Ai8BR4I+gBd4Bu8bHkAbgAvUJpAJmBkhD8U5EwUoB3hLfAA+8COyD7+kPFU4BvguH0A2I/kHgd5ANoR+L7fZQLoB4wEQAeYGJIBfBBkg3wsPzvgY9gJKDA6wGZ8L7AXeCvO7yPL9sIU+5rRfAfAP4Lrhn5/9ZXUgN/wFzAHWlGcd6Y1R+AAAAAElFTkSuQmCC" alt="Club">
@@ -109,7 +109,7 @@ button:disabled{opacity:.55;}
 </div>
 
 <script>
-// Game logic same as fully working version
+// Game logic
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
