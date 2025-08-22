@@ -15,12 +15,13 @@ button:hover{background:#0056b3;}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
 .modal-content{background:#fff;padding:20px;border-radius:8px;text-align:center;width:300px;}
 .modal-content img{width:50px;height:50px;margin:10px;cursor:pointer;}
+#topCardDiv{text-align:center;margin-bottom:10px;font-size:18px;font-weight:bold;}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>Crazy 8's Game</h1>
-<div id="topCardDiv" style="text-align:center;margin-bottom:10px;"></div>
+<div id="topCardDiv">Start a new game to play!</div>
 <div id="hand"></div>
 <div class="button-container">
 <button id="newGame">New Game</button>
@@ -28,7 +29,7 @@ button:hover{background:#0056b3;}
 </div>
 </div>
 
-<!-- Modal -->
+<!-- Suit selection modal -->
 <div id="suitModal" class="modal">
 <div class="modal-content">
 <h2>Pick a Suit</h2>
@@ -49,17 +50,96 @@ function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.ra
 function mkDeck(){let d=[];for(const s of SUITS)for(const r of RANKS)d.push({rank:r,suit:s});return shuffle(d);}
 function topCard(){return state.discard[state.discard.length-1];}
 function matches(c){if(!c||!topCard())return false;if(state.activeSuit)return c.suit===state.activeSuit||c.rank==='8';return c.rank===topCard().rank||c.suit===topCard().suit||c.rank==='8';}
-function drawCard(player){if(state.deck.length===0&&state.discard.length>1){let top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];}state.hands[player].push(state.deck.pop());renderHand();}
-function renderHand(){const handDiv=document.getElementById('hand');handDiv.innerHTML='';for(const c of state.hands['You']){const btn=document.createElement('div');btn.className='card';btn.textContent=c.rank+c.suit;btn.onclick=()=>playCard(c);handDiv.appendChild(btn);}renderTopCard();}
-function renderTopCard(){const topDiv=document.getElementById('topCardDiv');topDiv.innerHTML='';if(topCard()){topDiv.textContent='Top Card: '+topCard().rank+topCard().suit;}}
 
-function playCard(c){if(!state.playerCanMove||!matches(c))return;const idx=state.hands['You'].indexOf(c);if(idx>=0)state.hands['You'].splice(idx,1);state.discard.push(c);state.activeSuit=null;if(c.rank==='8'){state.awaitingSuit=true;document.getElementById('suitModal').style.display='flex';renderHand();return;}nextTurn();renderHand();}
-function chooseSuit(s){state.activeSuit=s;state.awaitingSuit=false;document.getElementById('suitModal').style.display='none';nextTurn();}
+function drawCard(player){if(state.deck.length===0&&state.discard.length>1){let top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];}state.hands[player].push(state.deck.pop());if(player==='You')renderHand();}
+
+function renderHand(){
+ const handDiv=document.getElementById('hand');handDiv.innerHTML='';
+ for(const c of state.hands['You']){
+   const btn=document.createElement('div');
+   btn.className='card';
+   btn.textContent=c.rank+c.suit;
+   btn.onclick=()=>playCard(c);
+   handDiv.appendChild(btn);
+ }
+ renderTopCard();
+}
+function renderTopCard(){
+ const topDiv=document.getElementById('topCardDiv');
+ topDiv.innerHTML='';
+ if(topCard()) topDiv.textContent='Top Card: '+topCard().rank+topCard().suit;
+}
+
+function playCard(c){
+ if(!state.playerCanMove||!matches(c))return;
+ const idx=state.hands['You'].indexOf(c);if(idx>=0)state.hands['You'].splice(idx,1);
+ state.discard.push(c);
+ state.activeSuit=null;
+ if(c.rank==='8'){state.awaitingSuit=true;document.getElementById('suitModal').style.display='flex';renderHand();return;}
+ checkWinner();
+ nextTurn();renderHand();
+}
+
+function chooseSuit(s){
+ state.activeSuit=s;
+ state.awaitingSuit=false;
+ document.getElementById('suitModal').style.display='none';
+ nextTurn();
+ renderHand();
+}
+
 document.querySelectorAll('.modal-content img').forEach(img=>img.addEventListener('click',()=>chooseSuit(img.dataset.suit)));
 
-function nextTurn(){state.turnIdx=(state.turnIdx+1)%state.players.length;state.playerCanMove=state.players[state.turnIdx]==='You';if(!state.playerCanMove)botTurn();}
-function botTurn(){setTimeout(()=>{let bot=state.players[state.turnIdx];let played=false;for(const c of state.hands[bot]){if(matches(c)){const idx=state.hands[bot].indexOf(c);state.hands[bot].splice(idx,1);state.discard.push(c);state.activeSuit=null;if(c.rank==='8'){state.activeSuit=SUITS[Math.floor(Math.random()*4)];}played=true;break;}}if(!played)drawCard(bot);nextTurn();},500);}
-function newGame(){state.deck=mkDeck();state.discard=[];state.hands={'You':[]};state.players=['You'];for(let i=1;i<=state.bots;i++)state.players.push('Bot '+i);for(const p of state.players)for(let j=0;j<5;j++)drawCard(p);state.discard.push(state.deck.pop());state.turnIdx=0;state.playerCanMove=true;renderHand();}
+function nextTurn(){
+ state.turnIdx=(state.turnIdx+1)%state.players.length;
+ state.playerCanMove=state.players[state.turnIdx]==='You';
+ if(!state.playerCanMove)botTurn();
+}
+
+function botTurn(){
+ setTimeout(()=>{
+   let bot=state.players[state.turnIdx];
+   let played=false;
+   for(const c of state.hands[bot]){
+     if(matches(c)){
+       const idx=state.hands[bot].indexOf(c);
+       state.hands[bot].splice(idx,1);
+       state.discard.push(c);
+       state.activeSuit=null;
+       if(c.rank==='8') state.activeSuit=SUITS[Math.floor(Math.random()*4)];
+       played=true;
+       break;
+     }
+   }
+   if(!played)drawCard(bot);
+   checkWinner();
+   nextTurn();
+ },500);
+}
+
+function checkWinner(){
+ for(const p of state.players){
+   if(state.hands[p].length===0){
+     alert(p+' wins!');
+     state.playerCanMove=false;
+   }
+ }
+}
+
+function newGame(){
+ state.deck=mkDeck();
+ state.discard=[];
+ state.hands={'You':[]};
+ state.players=['You'];
+ for(let i=1;i<=state.bots;i++)state.players.push('Bot '+i);
+ for(const p of state.players)for(let j=0;j<5;j++)drawCard(p);
+ state.discard.push(state.deck.pop());
+ state.turnIdx=0;
+ state.playerCanMove=true;
+ state.activeSuit=null;
+ renderHand();
+}
+
 document.getElementById('newGame').addEventListener('click',newGame);
 document.getElementById('drawBtn').addEventListener('click',()=>{if(state.playerCanMove&&!state.awaitingSuit)drawCard('You');});
 </script>
