@@ -35,6 +35,7 @@ button:disabled{opacity:.55;}
 .modal .sheet{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:var(--shadow);text-align:center;}
 .suit-grid{display:grid;grid-template-columns:repeat(2,minmax(80px,1fr));gap:12px;margin-top:10px;}
 .suit-btn{padding:10px;border-radius:12px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow); font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;}
+.suit-btn svg{width:50px;height:50px;display:block;margin:0 auto;}
 .hint{font-size:.95rem;color:#334155;}
 .footer{font-size:.85rem;color:#64748b;margin-top:10px;}
 </style>
@@ -82,18 +83,19 @@ button:disabled{opacity:.55;}
   <div class="panel">
     <div><b>Game log</b></div>
     <div id="log" class="log" aria-live="polite"></div>
-    <div class="footer">Rules: match rank or suit. 8s are wild—choose a suit. If you can't play, draw a card and try to play manually.</div>
+    <div class="footer">Rules: match rank or suit. 8s are wild—choose a suit. If you can't play, draw a card and play manually.</div>
   </div>
 </div>
 
+<!-- Suit modal with same symbols as hand -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
-      <button class="suit-btn" data-suit="♠" aria-label="Spades">♠</button>
-      <button class="suit-btn" data-suit="♥" aria-label="Hearts">♥</button>
-      <button class="suit-btn" data-suit="♦" aria-label="Diamonds">♦</button>
-      <button class="suit-btn" data-suit="♣" aria-label="Clubs">♣</button>
+      <button class="suit-btn" data-suit="♠" aria-label="Spades"><div class="card black small">♠</div></button>
+      <button class="suit-btn" data-suit="♥" aria-label="Hearts"><div class="card red small">♥</div></button>
+      <button class="suit-btn" data-suit="♦" aria-label="Diamonds"><div class="card red small">♦</div></button>
+      <button class="suit-btn" data-suit="♣" aria-label="Clubs"><div class="card black small">♣</div></button>
     </div>
   </div>
 </div>
@@ -109,11 +111,28 @@ function mkDeck(){const d=[];for(const s of SUITS){for(const r of RANKS){d.push(
 function cardStr(c){return c?c.rank+c.suit:'—';}
 function isEight(c){return c.rank==='8';}
 function topCard(){return state.discard[state.discard.length-1];}
-function matches(c,top,activeSuit){if(!c||!top)return false;if(activeSuit)return c.suit===activeSuit||isEight(c);return c.rank===top.rank||c.suit===top.suit||isEight(c);}
-function reshuffleIfNeeded(){if(state.deck.length===0&&state.discard.length>1){const top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];log("[Deck reshuffled]");updateBadges();}}
+function matches(c,top,activeSuit){
+  if(!c||!top)return false;
+  if(activeSuit)return c.suit===activeSuit||isEight(c);
+  return c.rank===top.rank||c.suit===top.suit||isEight(c);
+}
+function reshuffleIfNeeded(){
+  if(state.deck.length===0&&state.discard.length>1){
+    const top=state.discard.pop();
+    state.deck=shuffle(state.discard);
+    state.discard=[top];
+    log("[Deck reshuffled]");
+    updateBadges();
+  }
+}
 function drawCard(player){reshuffleIfNeeded();const c=state.deck.pop();state.hands[player].push(c);updateBadges();return c;}
 function playable(hand){return hand.filter(c=>matches(c,topCard(),state.activeSuit));}
-function updateBadges(){document.getElementById('deckBadge').textContent='Deck: '+state.deck.length;document.getElementById('playersBadge').textContent='Players: '+state.players.join(', ');document.getElementById('botCounts').textContent=state.players.slice(1).map(p=>state.hands[p].length).join(', ');document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx];}
+function updateBadges(){
+  document.getElementById('deckBadge').textContent='Deck: '+state.deck.length;
+  document.getElementById('playersBadge').textContent='Players: '+state.players.join(', ');
+  document.getElementById('botCounts').textContent=state.players.slice(1).map(p=>state.hands[p].length).join(', ');
+  document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx];
+}
 
 function render(){
   const handDiv=document.getElementById('hand'); handDiv.innerHTML='';
@@ -128,13 +147,25 @@ function render(){
   updateBadges();
 }
 
+// === PLAY CARD FIXED FOR LAST 8 ===
 function playCard(c){
   if(!state.playerCanMove || !matches(c, topCard(), state.activeSuit)) return;
-  const isLastCard = state.hands['You'].length===1;
-  state.hands['You'].splice(state.hands['You'].indexOf(c),1);
+  state.playerCanMove=false;
+  const idx = state.hands['You'].indexOf(c); if(idx >= 0) state.hands['You'].splice(idx,1);
   state.discard.push(c); log(`You play ${cardStr(c)}`);
-  if(isEight(c) && !isLastCard){
-    state.awaitingSuit=true; document.getElementById('suitModal').style.display='flex';
+
+  // If last card is 8, declare win immediately
+  if(isEight(c) && state.hands['You'].length===0){
+    state.winner='You'; log('🎉 You win!');
+    render();
+    return;
+  }
+
+  // Otherwise normal 8 behavior
+  if(isEight(c)){
+    state.awaitingSuit=true;
+    document.getElementById('suitModal').style.display='flex';
+    render();
   } else {
     state.activeSuit=null;
     if(state.hands['You'].length===0){state.winner='You'; log('🎉 You win!'); render(); return;}
@@ -143,7 +174,12 @@ function playCard(c){
   render();
 }
 
-function chooseSuit(s){state.activeSuit=s; state.awaitingSuit=false; document.getElementById('suitModal').style.display='none'; setTimeout(nextTurn,200);}
+function chooseSuit(s){
+  state.activeSuit=s;
+  state.awaitingSuit=false;
+  document.getElementById('suitModal').style.display='none';
+  setTimeout(nextTurn,200);
+}
 document.querySelectorAll('.suit-btn').forEach(b=>b.addEventListener('click',()=>chooseSuit(b.dataset.suit)));
 
 async function nextTurn(){
@@ -157,18 +193,14 @@ async function nextTurn(){
 async function botTurn(){
   const bot=state.players[state.turnIdx]; let hand=state.hands[bot];
   await new Promise(r=>setTimeout(r,400));
-  const playableCards = playable(hand);
-  if(playableCards.length===0){
-    const drawn=drawCard(bot);
-    await new Promise(r=>setTimeout(r,300));
-    if(matches(drawn, topCard(), state.activeSuit)) playableCards.push(drawn);
-  }
+  let playableCards = playable(hand);
+  if(playableCards.length===0){ drawCard(bot); await new Promise(r=>setTimeout(r,300)); playableCards = playable(hand); }
   if(playableCards.length>0){
     const c = playableCards[0]; hand.splice(hand.indexOf(c),1); state.discard.push(c);
     log(`${bot} plays ${cardStr(c)}`);
-    if(isEight(c)) {state.activeSuit=SUITS[Math.floor(Math.random()*4)]; log(`${bot} chooses suit ${state.activeSuit}`);}
-    if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
-  }
+    if(isEight(c)){state.activeSuit=SUITS[Math.floor(Math.random()*4)]; log(`${bot} chooses suit ${state.activeSuit}`);}
+  } else { log(`${bot} has no playable card and passes.`);}
+  if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
   render(); await new Promise(r=>setTimeout(r,400)); nextTurn();
 }
 
@@ -184,8 +216,12 @@ function newGame(){
 
 document.getElementById('newGame').addEventListener('click',newGame);
 document.getElementById('drawBtn').addEventListener('click',()=>{
-  if(!state.playerCanMove||state.awaitingSuit) return;
-  const drawn=drawCard('You'); render();
+  if(!state.playerCanMove || state.awaitingSuit) return;
+  const hand = state.hands['You'];
+  if(playable(hand).length>0) return; // only draw if no playable card
+  drawCard('You'); // draw one card
+  render();
+  log("You drew a card. You may play it if possible.");
 });
 </script>
 </body>
