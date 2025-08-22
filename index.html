@@ -2,124 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Crazy 8's</title>
+  <title>Crazy 8's Game</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #2e7d32; color: white; }
-    #game { margin: 20px; }
-    .hand, .bot-hand { display: flex; justify-content: center; margin: 10px; }
-    .card { width: 70px; height: 100px; border: 1px solid #fff; border-radius: 8px; background: white; color: black; display: flex; align-items: center; justify-content: center; margin: 5px; font-size: 20px; cursor: pointer; }
-    #suitModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 20px; border-radius: 10px; }
-    .suit-option { display: inline-block; width: 60px; height: 60px; margin: 10px; cursor: pointer; }
-    .suit-option svg { width: 100%; height: 100%; }
+    body { font-family: Arial, sans-serif; text-align: center; background: #2e8b57; color: white; }
+    #game { margin-top: 20px; }
+    .card { width: 80px; margin: 5px; display: inline-block; }
+    #hand img { cursor: pointer; }
+    #suitModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+    #suitOptions { background: white; color: black; width: 300px; margin: 200px auto; padding: 20px; border-radius: 8px; }
+    .suit-btn { width: 60px; height: 60px; margin: 10px; display: inline-block; cursor: pointer; }
+    svg { width: 100%; height: 100%; }
   </style>
 </head>
 <body>
   <h1>Crazy 8's Game</h1>
   <button onclick="startGame()">New Game</button>
+  <button onclick="drawCard()">Draw</button>
+
   <div id="game">
-    <p>Top Card: <span id="topCard"></span></p>
-    <div id="playerHand" class="hand"></div>
-    <div id="botHands"></div>
+    <h3>Top Card:</h3>
+    <div id="topCard"></div>
+    <h3>Your Hand:</h3>
+    <div id="hand"></div>
+    <h3>Bots:</h3>
+    <div id="bots"></div>
   </div>
 
-  <!-- Suit Picker Modal -->
+  <!-- Suit picker modal -->
   <div id="suitModal">
-    <p>Pick a suit:</p>
-    <div class="suit-option" onclick="chooseSuit('♠')">
-      <svg viewBox="0 0 100 100">
-        <path d="M50 5 C20 35, 20 65, 50 95 C80 65, 80 35, 50 5 Z" fill="black"/>
-        <rect x="45" y="70" width="10" height="25" fill="black"/>
-      </svg>
-    </div>
-    <div class="suit-option" onclick="chooseSuit('♥')">
-      <svg viewBox="0 0 100 100">
-        <path d="M50 85 L10 35 A20 20 0 0 1 50 25 A20 20 0 0 1 90 35 Z" fill="red"/>
-      </svg>
-    </div>
-    <div class="suit-option" onclick="chooseSuit('♦')">
-      <svg viewBox="0 0 100 100">
-        <polygon points="50,5 95,50 50,95 5,50" fill="red"/>
-      </svg>
-    </div>
-    <div class="suit-option" onclick="chooseSuit('♣')">
-      <svg viewBox="0 0 100 100">
-        <circle cx="50" cy="25" r="18" fill="black"/>
-        <circle cx="32" cy="50" r="18" fill="black"/>
-        <circle cx="68" cy="50" r="18" fill="black"/>
-        <rect x="45" y="50" width="10" height="30" fill="black"/>
-      </svg>
+    <div id="suitOptions">
+      <h3>Pick a suit</h3>
+      <div id="suits">
+        <div class="suit-btn" onclick="chooseSuit('hearts')">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 90 L10 40 A20 20 0 0 1 50 20 A20 20 0 0 1 90 40 Z" fill="red"/>
+          </svg>
+        </div>
+        <div class="suit-btn" onclick="chooseSuit('diamonds')">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 5 L95 50 L50 95 L5 50 Z" fill="red"/>
+          </svg>
+        </div>
+        <div class="suit-btn" onclick="chooseSuit('clubs')">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="25" r="20" fill="black"/>
+            <circle cx="30" cy="55" r="20" fill="black"/>
+            <circle cx="70" cy="55" r="20" fill="black"/>
+            <rect x="45" y="50" width="10" height="45" fill="black"/>
+          </svg>
+        </div>
+        <div class="suit-btn" onclick="chooseSuit('spades')">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 5 C20 35, 20 65, 50 95 C80 65, 80 35, 50 5 Z" fill="black"/>
+            <rect x="45" y="60" width="10" height="35" fill="black"/>
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    let deck = [], playerHand = [], bots = [], topCard = null;
-
-    function createDeck() {
-      const suits = ['♠','♥','♦','♣'];
-      const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-      let newDeck = [];
-      for (let suit of suits) {
-        for (let value of values) {
-          newDeck.push({suit,value});
-        }
-      }
-      return newDeck.sort(() => Math.random() - 0.5);
-    }
+    let deck = [];
+    let playerHand = [];
+    let botHands = [];
+    let topCard = null;
+    let currentSuit = null;
+    let turn = 0;
+    let numBots = 3;
 
     function startGame() {
       deck = createDeck();
-      playerHand = [];
-      bots = [[],[],[]]; // 3 bots
-      for (let i = 0; i < 5; i++) {   // FIX: Deal 5 cards, not 10
-        playerHand.push(deck.pop());
-        for (let b = 0; b < bots.length; b++) {
-          bots[b].push(deck.pop());
+      shuffle(deck);
+      playerHand = deck.splice(0, 5);
+      botHands = Array.from({length: numBots}, () => deck.splice(0, 5));
+      topCard = deck.pop();
+      currentSuit = topCard.suit;
+      turn = 0;
+      updateDisplay();
+    }
+
+    function createDeck() {
+      const suits = ["hearts","diamonds","clubs","spades"];
+      const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+      let d = [];
+      for (let s of suits) {
+        for (let v of values) {
+          d.push({suit: s, value: v});
         }
       }
-      topCard = deck.pop();
-      renderGame();
+      return d;
     }
 
-    function renderGame() {
-      document.getElementById("topCard").innerText = topCard.value + topCard.suit;
-      const handDiv = document.getElementById("playerHand");
-      handDiv.innerHTML = "";
-      for (let card of playerHand) {
-        const c = document.createElement("div");
-        c.className = "card";
-        c.innerText = card.value + card.suit;
-        c.onclick = () => playCard(card);
-        handDiv.appendChild(c);
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
-      const botDiv = document.getElementById("botHands");
-      botDiv.innerHTML = "";
-      bots.forEach((bot,i) => {
-        let bDiv = document.createElement("div");
-        bDiv.className = "bot-hand";
-        bDiv.innerText = `Bot ${i+1}: ${bot.length} cards`;
-        botDiv.appendChild(bDiv);
-      });
     }
 
-    function playCard(card) {
-      if (card.value === "8") {
-        showSuitModal();
-        playerHand = playerHand.filter(c => c !== card);
-      } else {
+    function updateDisplay() {
+      document.getElementById("topCard").innerHTML = renderCard(topCard);
+      document.getElementById("hand").innerHTML = playerHand.map((c,i) => `<img class="card" src="https://deckofcardsapi.com/static/img/${c.value}${c.suit[0].toUpperCase()}.png" onclick="playCard(${i})">`).join("");
+      document.getElementById("bots").innerText = botHands.map((h,i)=>`Bot ${i+1}: ${h.length} cards`).join(" | ");
+    }
+
+    function renderCard(card) {
+      return `<img class="card" src="https://deckofcardsapi.com/static/img/${card.value}${card.suit[0].toUpperCase()}.png">`;
+    }
+
+    function playCard(index) {
+      let card = playerHand[index];
+      if (card.value === "8" || card.suit === currentSuit || card.value === topCard.value) {
         topCard = card;
-        playerHand = playerHand.filter(c => c !== card);
+        playerHand.splice(index,1);
+        if (card.value === "8") {
+          document.getElementById("suitModal").style.display = "block";
+        } else {
+          currentSuit = card.suit;
+          nextTurn();
+        }
+        updateDisplay();
       }
-      renderGame();
     }
 
-    function showSuitModal() {
-      document.getElementById("suitModal").style.display = "block";
+    function drawCard() {
+      if (deck.length > 0) {
+        playerHand.push(deck.pop());
+        updateDisplay();
+      }
     }
 
     function chooseSuit(suit) {
-      topCard = {value: "8", suit};
+      currentSuit = suit;
       document.getElementById("suitModal").style.display = "none";
-      renderGame();
+      nextTurn();
+    }
+
+    function nextTurn() {
+      turn = (turn + 1) % (numBots + 1);
+      if (turn > 0) {
+        botPlay(turn - 1);
+      }
+    }
+
+    function botPlay(botIndex) {
+      let hand = botHands[botIndex];
+      let playable = hand.find(c => c.suit === currentSuit || c.value === topCard.value || c.value === "8");
+      if (playable) {
+        topCard = playable;
+        hand.splice(hand.indexOf(playable),1);
+        currentSuit = playable.value === "8" ? ["hearts","diamonds","clubs","spades"][Math.floor(Math.random()*4)] : playable.suit;
+      } else {
+        if (deck.length > 0) hand.push(deck.pop());
+      }
+      updateDisplay();
+      turn = (turn + 1) % (numBots + 1);
+      if (turn > 0) botPlay(turn - 1);
     }
   </script>
 </body>
