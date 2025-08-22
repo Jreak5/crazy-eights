@@ -101,7 +101,7 @@ button:disabled{opacity:.55;}
 <script>
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false};
+const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
 
 function log(msg){const el=document.getElementById('log');el.innerHTML+=msg+"\n";el.scrollTop=el.scrollHeight;}
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
@@ -134,7 +134,8 @@ function render(){
 }
 
 function playCard(c){
-  if(!matches(c, topCard(), state.activeSuit)) return;
+  if(!state.playerCanMove || !matches(c, topCard(), state.activeSuit)) return;
+  state.playerCanMove = false; // block input until turn finishes
   const idx = state.hands['You'].indexOf(c);
   if(idx >= 0) state.hands['You'].splice(idx,1);
   state.discard.push(c);
@@ -142,10 +143,11 @@ function playCard(c){
   if(isEight(c)){
     state.awaitingSuit = true;
     document.getElementById('suitModal').style.display='flex';
+    render();
   } else {
     state.activeSuit = null;
     if(state.hands['You'].length === 0){state.winner='You'; log('🎉 You win!'); render(); return;}
-    nextTurn();
+    setTimeout(nextTurn, 200);
   }
   render();
 }
@@ -154,7 +156,7 @@ function chooseSuit(s){
   state.activeSuit = s;
   state.awaitingSuit = false;
   document.getElementById('suitModal').style.display='none';
-  nextTurn();
+  setTimeout(nextTurn, 200);
 }
 
 document.querySelectorAll('.suit-btn').forEach(b => {
@@ -164,10 +166,12 @@ document.querySelectorAll('.suit-btn').forEach(b => {
 function nextTurn(){
   if(state.winner) return;
   state.turnIdx = (state.turnIdx +1) % state.players.length;
+  state.playerCanMove = state.players[state.turnIdx]==='You';
   updateBadges();
-  if(state.players[state.turnIdx] !== 'You'){
+  if(!state.playerCanMove){
     setTimeout(botTurn, 400);
   }
+  render();
 }
 
 function botTurn(){
@@ -187,7 +191,7 @@ function botTurn(){
     if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
   }
   render();
-  nextTurn();
+  setTimeout(nextTurn, 400);
 }
 
 function newGame(){
@@ -199,6 +203,7 @@ function newGame(){
   state.activeSuit = null;
   state.turnIdx = 0;
   state.awaitingSuit = false;
+  state.playerCanMove = true;
   state.bots = parseInt(document.getElementById('botCount').value);
 
   for(let i=1; i<=state.bots; i++) state.players.push('Bot '+i);
@@ -211,7 +216,7 @@ function newGame(){
 
 document.getElementById('newGame').addEventListener('click', newGame);
 document.getElementById('drawBtn').addEventListener('click', ()=>{
-  if(state.awaitingSuit || state.players[state.turnIdx]!=='You') return;
+  if(!state.playerCanMove || state.awaitingSuit) return;
   drawCard('You');
   render();
 });
