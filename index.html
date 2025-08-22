@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Fixed</title>
+<title>Crazy 8's – Fixed 2</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -42,7 +42,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Fixed</h1>
+    <h1>Crazy 8's – Fixed 2</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -135,88 +135,78 @@ function render(){
 
 function playCard(c){
   if(!state.playerCanMove || !matches(c, topCard(), state.activeSuit)) return;
-  state.playerCanMove = false; // block input until turn finishes
+  state.playerCanMove=false;
   const idx = state.hands['You'].indexOf(c);
   if(idx >= 0) state.hands['You'].splice(idx,1);
   state.discard.push(c);
   log(`You play ${cardStr(c)}`);
   if(isEight(c)){
-    state.awaitingSuit = true;
+    state.awaitingSuit=true;
     document.getElementById('suitModal').style.display='flex';
     render();
   } else {
-    state.activeSuit = null;
-    if(state.hands['You'].length === 0){state.winner='You'; log('🎉 You win!'); render(); return;}
-    setTimeout(nextTurn, 200);
+    state.activeSuit=null;
+    if(state.hands['You'].length===0){state.winner='You'; log('🎉 You win!'); render(); return;}
+    setTimeout(nextTurn,200);
   }
   render();
 }
 
 function chooseSuit(s){
-  state.activeSuit = s;
-  state.awaitingSuit = false;
+  state.activeSuit=s;
+  state.awaitingSuit=false;
   document.getElementById('suitModal').style.display='none';
-  setTimeout(nextTurn, 200);
+  setTimeout(nextTurn,200);
 }
 
-document.querySelectorAll('.suit-btn').forEach(b => {
-  b.addEventListener('click', ()=>chooseSuit(b.dataset.suit));
-});
+document.querySelectorAll('.suit-btn').forEach(b=>b.addEventListener('click',()=>chooseSuit(b.dataset.suit)));
 
-function nextTurn(){
+async function nextTurn(){
   if(state.winner) return;
-  state.turnIdx = (state.turnIdx +1) % state.players.length;
-  state.playerCanMove = state.players[state.turnIdx]==='You';
+  state.turnIdx=(state.turnIdx+1)%state.players.length;
+  state.playerCanMove=state.players[state.turnIdx]==='You';
   updateBadges();
-  if(!state.playerCanMove){
-    setTimeout(botTurn, 400);
-  }
   render();
+  if(!state.playerCanMove) await botTurn();
 }
 
-function botTurn(){
-  const bot = state.players[state.turnIdx];
-  let hand = state.hands[bot];
-  let options = playable(hand);
-  if(options.length===0){ drawCard(bot); options = playable(hand); }
-  if(options.length>0){
-    const c = options[0];
-    hand.splice(hand.indexOf(c),1);
-    state.discard.push(c);
-    log(`${bot} plays ${cardStr(c)}`);
-    if(isEight(c)){
-      state.activeSuit = SUITS[Math.floor(Math.random()*4)];
-      log(`${bot} chooses suit ${state.activeSuit}`);
-    }
-    if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
-  }
+async function botTurn(){
+  const bot=state.players[state.turnIdx];
+  let hand=state.hands[bot];
+  await new Promise(r=>setTimeout(r,400));
+  while(playable(hand).length===0){drawCard(bot); await new Promise(r=>setTimeout(r,300));}
+  const c=playable(hand)[0];
+  hand.splice(hand.indexOf(c),1);
+  state.discard.push(c);
+  log(`${bot} plays ${cardStr(c)}`);
+  if(isEight(c)){state.activeSuit=SUITS[Math.floor(Math.random()*4)]; log(`${bot} chooses suit ${state.activeSuit}`);}
+  if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
   render();
-  setTimeout(nextTurn, 400);
+  await new Promise(r=>setTimeout(r,400));
+  nextTurn();
 }
 
 function newGame(){
-  state.deck = mkDeck();
-  state.discard = [];
-  state.hands = {};
-  state.players = ['You'];
-  state.winner = null;
-  state.activeSuit = null;
-  state.turnIdx = 0;
-  state.awaitingSuit = false;
-  state.playerCanMove = true;
-  state.bots = parseInt(document.getElementById('botCount').value);
-
-  for(let i=1; i<=state.bots; i++) state.players.push('Bot '+i);
+  state.deck=mkDeck();
+  state.discard=[];
+  state.hands={};
+  state.players=['You'];
+  state.winner=null;
+  state.activeSuit=null;
+  state.turnIdx=0;
+  state.awaitingSuit=false;
+  state.playerCanMove=true;
+  state.bots=parseInt(document.getElementById('botCount').value);
+  for(let i=1;i<=state.bots;i++) state.players.push('Bot '+i);
   for(const p of state.players) state.hands[p]=[];
   for(const p of state.players) for(let j=0;j<5;j++) drawCard(p);
-
   state.discard.push(state.deck.pop());
   render();
 }
 
-document.getElementById('newGame').addEventListener('click', newGame);
-document.getElementById('drawBtn').addEventListener('click', ()=>{
-  if(!state.playerCanMove || state.awaitingSuit) return;
+document.getElementById('newGame').addEventListener('click',newGame);
+document.getElementById('drawBtn').addEventListener('click',()=>{
+  if(!state.playerCanMove||state.awaitingSuit) return;
   drawCard('You');
   render();
 });
