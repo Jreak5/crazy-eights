@@ -1,252 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crazy 8's Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .game-container {
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 600px;
-      text-align: center;
-    }
-    .hand {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .card {
-      width: 60px;
-      height: 90px;
-      margin: 0 5px;
-      cursor: pointer;
-    }
-    .card img {
-      width: 100%;
-      height: 100%;
-    }
-    .controls {
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
-    }
-    button:disabled {
-      background-color: #ccc;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-    .modal-content img {
-      width: 50px;
-      height: 50px;
-      margin: 5px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crazy 8's Game</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f4f4f4;}
+.container{max-width:800px;margin:20px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,.1);}
+h1{text-align:center;color:#333;}
+.card{display:inline-block;width:60px;height:90px;margin:10px;background:#fff;border:1px solid #ccc;border-radius:5px;text-align:center;line-height:90px;font-size:24px;cursor:pointer;}
+.button-container{text-align:center;margin-top:20px;}
+button{padding:10px 20px;font-size:16px;background:#007bff;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+button:hover{background:#0056b3;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
+.modal-content{background:#fff;padding:20px;border-radius:8px;text-align:center;width:300px;}
+.modal-content img{width:50px;height:50px;margin:10px;cursor:pointer;}
+#topCardDiv{text-align:center;margin-bottom:10px;font-size:18px;font-weight:bold;}
+#botHands{text-align:center;margin-bottom:10px;}
+</style>
 </head>
 <body>
-  <div class="game-container">
-    <h1>Crazy 8's</h1>
-    <div id="top-card">
-      <img src="https://deckofcardsapi.com/static/img/2H.png" alt="Top Card">
-    </div>
-    <div id="hand" class="hand"></div>
-    <div id="bot-hands">
-      <p>Bot 1: <span id="bot1-count">5</span> cards</p>
-      <p>Bot 2: <span id="bot2-count">5</span> cards</p>
-    </div>
-    <div class="controls">
-      <button id="draw-btn">Draw</button>
-      <button id="end-turn-btn" disabled>End Turn</button>
-    </div>
-  </div>
+<div class="container">
+<h1>Crazy 8's Game</h1>
+<div id="topCardDiv">Start a new game to play!</div>
+<div id="botHands"></div>
+<div id="hand"></div>
+<div class="button-container">
+<button id="newGame">New Game</button>
+<button id="drawBtn">Draw</button>
+</div>
+</div>
 
-  <div id="suit-modal" class="modal">
-    <div class="modal-content">
-      <h2>Choose a Suit</h2>
-      <img src="https://deckofcardsapi.com/static/img/2H.png" alt="Hearts" data-suit="hearts">
-      <img src="https://deckofcardsapi.com/static/img/2D.png" alt="Diamonds" data-suit="diamonds">
-      <img src="https://deckofcardsapi.com/static/img/2C.png" alt="Clubs" data-suit="clubs">
-      <img src="https://deckofcardsapi.com/static/img/2S.png" alt="Spades" data-suit="spades">
-    </div>
-  </div>
+<div id="suitModal" class="modal">
+<div class="modal-content">
+<h2>Pick a Suit</h2>
+<div>
+<img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Spades.svg" alt="Spades" data-suit="♠">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Hearts.svg" alt="Hearts" data-suit="♥">
+<img src="https://upload.wikimedia.org/wikipedia/commons/d/dc/Diamonds.svg" alt="Diamonds" data-suit="♦">
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/25/Clubs.svg" alt="Clubs" data-suit="♣">
+</div>
+</div>
+</div>
 
-  <script>
-    const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
-    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-    let deck = [];
-    let playerHand = [];
-    let botHands = [[], [], []];
-    let discardPile = [];
-    let activeSuit = null;
-    let currentPlayer = 0;
+<script>
+const SUITS=['♠','♥','♦','♣'], RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+let state={deck:[],discard:[],hands:{'You':[]},players:['You'],activeSuit:null,turnIdx:0,bots:0,winner:null,awaitingSuit:false,playerCanMove:true};
 
-    const topCardDiv = document.getElementById('top-card');
-    const handDiv = document.getElementById('hand');
-    const drawBtn = document.getElementById('draw-btn');
-    const endTurnBtn = document.getElementById('end-turn-btn');
-    const suitModal = document.getElementById('suit-modal');
-    const bot1Count = document.getElementById('bot1-count');
-    const bot2Count = document.getElementById('bot2-count');
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function mkDeck(){let d=[];for(const s of SUITS)for(const r of RANKS)d.push({rank:r,suit:s});return shuffle(d);}
+function topCard(){return state.discard[state.discard.length-1];}
+function matches(c){if(!c||!topCard())return false;if(state.activeSuit)return c.suit===state.activeSuit||c.rank==='8';return c.rank===topCard().rank||c.suit===topCard().suit||c.rank==='8';}
 
-    function createDeck() {
-      deck = [];
-      for (let suit of suits) {
-        for (let rank of ranks) {
-          deck.push({ suit, rank, image: `https://deckofcardsapi.com/static/img/${rank[0]}${suit[0].toUpperCase()}.png` });
-        }
-      }
-      shuffleDeck();
-    }
+function drawCard(player){if(state.deck.length===0&&state.discard.length>1){let top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];}state.hands[player].push(state.deck.pop());if(player==='You')renderHand();}
 
-    function shuffleDeck() {
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-      }
-    }
+function renderHand(){
+ const handDiv=document.getElementById('hand');handDiv.innerHTML='';
+ for(const c of state.hands['You']){
+   const btn=document.createElement('div');
+   btn.className='card';
+   btn.textContent=c.rank+c.suit;
+   btn.onclick=()=>playCard(c);
+   handDiv.appendChild(btn);
+ }
+ renderTopCard();
+ renderBots();
+}
+function renderTopCard(){
+ const topDiv=document.getElementById('topCardDiv');
+ topDiv.innerHTML='';
+ if(topCard()) topDiv.textContent='Top Card: '+topCard().rank+topCard().suit+(state.activeSuit?' (Active Suit: '+state.activeSuit+')':'');
+}
+function renderBots(){
+ const botDiv=document.getElementById('botHands');
+ botDiv.innerHTML='';
+ for(let i=1;i<=state.bots;i++){
+   botDiv.innerHTML+='<p>Bot '+i+': '+state.hands['Bot '+i].length+' cards</p>';
+ }
+}
 
-    function dealCards() {
-      playerHand = deck.splice(0, 5);
-      botHands = [deck.splice(0, 5), deck.splice(0, 5), deck.splice(0, 5)];
-      discardPile = [deck.pop()];
-      renderGame();
-    }
+function playCard(c){
+ if(!state.playerCanMove||!matches(c))return;
+ const idx=state.hands['You'].indexOf(c);if(idx>=0)state.hands['You'].splice(idx,1);
+ state.discard.push(c);
+ state.activeSuit=null;
+ if(c.rank==='8'){state.awaitingSuit=true;document.getElementById('suitModal').style.display='flex';renderHand();return;}
+ checkWinner();
+ nextTurn();renderHand();
+}
 
-    function renderGame() {
-      renderTopCard();
-      renderHand();
-      renderBotHands();
-    }
+function chooseSuit(s){
+ state.activeSuit=s;
+ state.awaitingSuit=false;
+ document.getElementById('suitModal').style.display='none';
+ nextTurn();
+ renderHand();
+}
 
-    function renderTopCard() {
-      const topCard = discardPile[discardPile.length - 1];
-      topCardDiv.innerHTML = `<img src="${topCard.image}" alt="Top Card">`;
-    }
+document.querySelectorAll('.modal-content img').forEach(img=>img.addEventListener('click',()=>chooseSuit(img.dataset.suit)));
 
-    function renderHand() {
-      handDiv.innerHTML = '';
-      for (let card of playerHand) {
-        const cardDiv = document.createElement('div');
-        cardDiv.classList.add('card');
-        cardDiv.innerHTML = `<img src="${card.image}" alt="${card.rank} of ${card.suit}">`;
-        cardDiv.onclick = () => playCard(card);
-        handDiv.appendChild(cardDiv);
-      }
-    }
+function nextTurn(){
+ state.turnIdx=(state.turnIdx+1)%state.players.length;
+ state.playerCanMove=state.players[state.turnIdx]==='You';
+ if(!state.playerCanMove)botTurn();
+}
 
-    function renderBotHands() {
-      bot1Count.textContent = botHands[0].length;
-      bot2Count.textContent = botHands[1].length;
-    }
+function botTurn(){
+ setTimeout(()=>{
+   let bot=state.players[state.turnIdx];
+   let played=false;
+   for(const c of state.hands[bot]){
+     if(matches(c)){
+       const idx=state.hands[bot].indexOf(c);
+       state.hands[bot].splice(idx,1);
+       state.discard.push(c);
+       state.activeSuit=null;
+       if(c.rank==='8') state.activeSuit=SUITS[Math.floor(Math.random()*4)];
+       played=true;
+       break;
+     }
+   }
+   if(!played)drawCard(bot);
+   checkWinner();
+   nextTurn();
+ },500);
+}
 
-    function playCard(card) {
-      if (isPlayable(card)) {
-        discardPile.push(card);
-        playerHand = playerHand.filter(c => c !== card);
-        renderGame();
-        checkForWin();
-        nextTurn();
-      }
-    }
+function checkWinner(){
+ for(const p of state.players){
+   if(state.hands[p].length===0){
+     alert(p+' wins!');
+     state.playerCanMove=false;
+   }
+ }
+}
 
-    function isPlayable(card) {
-      const topCard = discardPile[discardPile.length - 1];
-      return card.suit === topCard.suit || card.rank === topCard.rank || card.rank === '8';
-    }
+function newGame(){
+ let numBots=parseInt(prompt('How many bots? (1-3)','2'));
+ if(isNaN(numBots)||numBots<1)numBots=1; else if(numBots>3)numBots=3;
+ state.bots=numBots;
+ state.deck=mkDeck();
+ state.discard=[];
+ state.hands={'You':[]};
+ state.players=['You'];
+ for(let i=1;i<=state.bots;i++)state.players.push('Bot '+i);
+ for(const p of state.players)for(let j=0;j<5;j++)drawCard(p);
+ state.discard.push(state.deck.pop());
+ state.turnIdx=0;
+ state.playerCanMove=true;
+ state.activeSuit=null;
+ renderHand();
+}
 
-    function checkForWin() {
-      if (playerHand.length === 0) {
-        alert('You win!');
-      } else if (botHands.every(hand => hand.length === 0)) {
-        alert('Bots win!');
-      }
-    }
-
-    function nextTurn() {
-      currentPlayer = (currentPlayer + 1) % 4;
-      if (currentPlayer === 0) {
-        drawBtn.disabled = false;
-        endTurnBtn.disabled = false;
-      } else {
-        drawBtn.disabled = true;
-        endTurnBtn.disabled = true;
-        botTurn();
-      }
-    }
-
-    function botTurn() {
-      setTimeout(() => {
-        const botHand = botHands[currentPlayer - 1];
-        const playableCards = botHand.filter(isPlayable);
-        if (playableCards.length > 0) {
-          const card = playableCards[0];
-          discardPile.push(card);
-          botHands[currentPlayer - 1] = botHand.filter(c => c !== card);
-        } else {
-          deck.push(botHand.pop());
-        }
-        renderGame();
-        checkForWin();
-        nextTurn();
-      }, 1000);
-    }
-
-    drawBtn.onclick = () => {
-      if (deck.length > 0) {
-        playerHand.push(deck.pop());
-        renderHand();
-        nextTurn();
-      }
-    };
-
-    endTurnBtn.onclick = nextTurn;
-
-    suitModal.querySelectorAll('img').forEach(img => {
-      img.onclick = () => {
-        activeSuit = img.dataset.suit;
-        suitModal.style.display = 'none';
-        nextTurn();
-      };
-    });
-
-    createDeck();
-    dealCards();
-  </script>
+document.getElementById('newGame').addEventListener('click',newGame);
+document.getElementById('drawBtn').addEventListener('click',()=>{if(state.playerCanMove&&!state.awaitingSuit)drawCard('You');});
+</script>
 </body>
 </html>
