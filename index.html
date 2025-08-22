@@ -143,7 +143,7 @@ function newGame(){
  state.discard=[];
  state.hands={'You':[]};
  state.players=['You'];
- for(let i=1;i<=state.bots;i++)state.players.push('Bot '+i);
+ for(let i=1;i<=state.bots;i++)state.players.push('Bot '+i),state.hands['Bot '+i]=[];
  for(const p of state.players)for(let j=0;j<5;j++)drawCard(p);
  state.discard.push(state.deck.pop());
  state.turnIdx=0;
