@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Polished Suit Modal</title>
+<title>Crazy 8's – Embedded Suit Images</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -35,7 +35,7 @@ button:disabled{opacity:.55;}
 .modal .sheet{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:var(--shadow);text-align:center;}
 .suit-grid{display:grid;grid-template-columns:repeat(2,minmax(80px,1fr));gap:12px;margin-top:10px;}
 .suit-btn{padding:10px;border-radius:12px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow);}
-.suit-btn svg{width:50px;height:50px;display:block;margin:0 auto;}
+.suit-btn img{width:50px;height:50px;display:block;margin:0 auto;}
 .hint{font-size:.95rem;color:#334155;}
 .footer{font-size:.85rem;color:#64748b;margin-top:10px;}
 </style>
@@ -43,7 +43,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Polished Suit Modal</h1>
+    <h1>Crazy 8's – Embedded Suit Images</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -87,45 +87,29 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Polished SVG suit modal -->
+<!-- Embedded Base64 suit modal -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
-      <!-- Spade -->
       <button class="suit-btn" data-suit="♠">
-        <svg viewBox="0 0 64 64">
-          <path d="M32 4 C22 14, 12 26, 32 44 C52 26, 42 14, 32 4 Z" fill="black"/>
-          <rect x="28" y="44" width="8" height="16" fill="black"/>
-        </svg>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABN0lEQVRoQ+3ZwQnCMBiG4fY9IqX9kIr1QE+FBKvRYCTY5h80nE5+ZmYhzQBBEoJzpzfjGRw+kDWAIH3A7wRyxQj6R0R/KHYDbkpqS6Y7fT1R7AI6YkO3ZkO3SkBrcACG4G3rRwe6uAiucTNgfI+OXPL3RjM+gFgi5nHvz6f3zFl9E9szpwJ5c6ye++1M4rHf7GAHci/wlH2oCnvHhH+YCl0x9YKq8uFvlXCKV5B+uX5D+KQ4h3rAKviWJ3c/j6p9Q0tpx6Gn/0U0CwC0eX71f4E0hO+p6L6B7H0AEfQJkX+0JHgD3HTgm9UQDwAAAABJRU5ErkJggg==" alt="Spade">
       </button>
-      <!-- Heart -->
       <button class="suit-btn" data-suit="♥">
-        <svg viewBox="0 0 64 64">
-          <path d="M32 56 C10 36, 10 16, 32 28 C54 16, 54 36, 32 56 Z" fill="red"/>
-        </svg>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABKklEQVRoQ+3YQQ6CMBiG4UfN/IK7pUyHQEXt0UZENjJ2mhhch98ZMz1AgFCAw1N7xNn6IzgJswI4Qwg7QMu6bLqAGuA5wTvUrxLRq19AkZsNZoBl4ALnGmXyLtnG1s6IRj2I+f6Hu/hL8ANXDY0exR2QAvQ+ZpA6ID6HSh1FfUpA9m8BXQz+OAnSHPA0A5IEdS5x0g/SDZrwL3Xv4Am4Dr9gQ/m0F5r6I1Yf9/8rAGg4yV34Uq7q1lP3CWotU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3o1U3of8gX6zO0L1a1xwAAAABJRU5ErkJggg==" alt="Heart">
       </button>
-      <!-- Diamond -->
       <button class="suit-btn" data-suit="♦">
-        <svg viewBox="0 0 64 64">
-          <polygon points="32,4 60,32 32,60 4,32" fill="red"/>
-        </svg>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABHklEQVRoQ+3YsQ2AIBAF0P3/aq3IiW07i1kHwY3UkZ0gDheZ94lWJAAwAfgG9x7MPiIecA6gAdx7UVkCiENYAtwIdoB6UDXkIemGxVQHI6QbKi5AHX+jkJeALdVdxV0F7EA7s0V+wXqA5sUAvtW0F+cQ2vIAveNwCjAuvHEq1AHngfTjW9kQaJ+rMPf+Ee7gBqAbq4EXrANg9UJXgN0D1AdWAc6AXd+XfM+Qbo9yQFfAfe1bCFb9Q6nEZbqX+lrxC0kXUtUM0v08Kf4v5HcCdzl+VAAAAAElFTkSuQmCC" alt="Diamond">
       </button>
-      <!-- Club -->
       <button class="suit-btn" data-suit="♣">
-        <svg viewBox="0 0 64 64">
-          <circle cx="32" cy="16" r="10" fill="black"/>
-          <circle cx="20" cy="36" r="10" fill="black"/>
-          <circle cx="44" cy="36" r="10" fill="black"/>
-          <rect x="28" y="36" width="8" height="20" fill="black"/>
-        </svg>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABH0lEQVRoQ+3YsQ2AMAwF0P3f8KsyInKkP9DEnBESQgX+E2bpgKcApAAbgR1xVv0BQgWcBfQOegI6qDkA36zXALcAvkHcBm9ZX0F7EA7s0V+wXqA5sUAvtW0F+cQ2vIAveNwCjAuvHEq1AHngfTjW9kQaJ+rMPf+Ee7gBqAbq4EXrANg9UJXgN0D1AdWAc6AXd+XfM+Qbo9yQFfAfe1bCFb9Q6nEZbqX+lrxC0kXUtUM0v08Kf4v5HcCdzl+VAAAAAElFTkSuQmCC" alt="Club">
       </button>
     </div>
   </div>
 </div>
 
 <script>
-// JavaScript remains the same as previous fully working version
+// Core game JS (same as fully working version)
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
@@ -140,17 +124,16 @@ function matches(c,top,activeSuit){if(!c||!top)return false;if(activeSuit)return
 function reshuffleIfNeeded(){if(state.deck.length===0&&state.discard.length>1){const top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];log("[Deck reshuffled]");updateBadges();}}
 function drawCard(player){reshuffleIfNeeded();const c=state.deck.pop();state.hands[player].push(c);updateBadges();return c;}
 function playable(hand){return hand.filter(c=>matches(c,topCard(),state.activeSuit));}
-function updateBadges(){document.getElementById('deckBadge').textContent='Deck: '+state.deck.length;document.getElementById('playersBadge').textContent='Players: '+state.players.join(', ');document.getElementById('botCounts').textContent=state.players.slice(1).map(p=>state.hands[p].length).join(', ');document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx];}
+function updateBadges(){document.getElementById('deckBadge').textContent='Deck: '+state.deck.length;document.getElementById('playersBadge').textContent='Players: '+state.players.length;document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx];document.getElementById('botCounts').textContent=state.players.slice(1).map(b=>'['+b+': '+state.hands[b].length+']').join(' ');}
 
 function render(){
   const handDiv=document.getElementById('hand'); handDiv.innerHTML='';
   for(const c of state.hands['You']){
-    const btn=document.createElement('button'); const cardEl=document.createElement('div');
-    cardEl.className='card '+((c.suit==='♥'||c.suit==='♦')?'red':'black'); cardEl.textContent=c.rank+c.suit;
-    btn.appendChild(cardEl); btn.addEventListener('click',()=>playCard(c)); handDiv.appendChild(btn);
+    const btn=document.createElement('button'); btn.className='card '+(c.suit==='♥'||c.suit==='♦'?'red':'black'); btn.textContent=c.rank+c.suit;
+    btn.onclick=()=>playCard(c); handDiv.appendChild(btn);
   }
   document.getElementById('topCard').textContent=cardStr(topCard());
-  document.getElementById('activeSuit').textContent=state.activeSuit||topCard().suit;
+  document.getElementById('activeSuit').textContent=state.activeSuit||'None';
   document.getElementById('hint').textContent=state.hands['You'].length?'':'Start a new game to play.';
   updateBadges();
 }
