@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Accurate Suit Modal</title>
+<title>Crazy 8's – Fixed Suit Icons</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -43,7 +43,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Accurate Suit Modal</h1>
+    <h1>Crazy 8's – Fixed Suit Icons</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -87,7 +87,7 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Corrected suit modal -->
+<!-- Fixed suit modal -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
@@ -95,14 +95,14 @@ button:disabled{opacity:.55;}
       <!-- Spade -->
       <button class="suit-btn" data-suit="♠">
         <svg viewBox="0 0 64 64">
-          <path d="M32 4 C18 20, 0 40, 32 60 C64 40, 46 20, 32 4 Z" fill="black"/>
-          <rect x="28" y="46" width="8" height="14" fill="black"/>
+          <path d="M32 4 C12 28, 16 40, 32 52 C48 40, 52 28, 32 4 Z" fill="black"/>
+          <rect x="28" y="52" width="8" height="10" fill="black"/>
         </svg>
       </button>
       <!-- Heart -->
       <button class="suit-btn" data-suit="♥">
         <svg viewBox="0 0 64 64">
-          <path d="M32 58 C10 38, 10 20, 32 28 C54 20, 54 38, 32 58 Z" fill="red"/>
+          <path d="M32 58 C12 36, 8 20, 20 14 C28 10, 32 16, 32 20 C32 16, 36 10, 44 14 C56 20, 52 36, 32 58 Z" fill="red"/>
         </svg>
       </button>
       <!-- Diamond -->
@@ -115,9 +115,9 @@ button:disabled{opacity:.55;}
       <button class="suit-btn" data-suit="♣">
         <svg viewBox="0 0 64 64">
           <circle cx="32" cy="16" r="8" fill="black"/>
-          <circle cx="24" cy="32" r="8" fill="black"/>
-          <circle cx="40" cy="32" r="8" fill="black"/>
-          <path d="M30 32 L34 32 L32 52 Z" fill="black"/>
+          <circle cx="20" cy="32" r="8" fill="black"/>
+          <circle cx="44" cy="32" r="8" fill="black"/>
+          <path d="M28 32 Q32 36 36 32 L32 52 Z" fill="black"/>
         </svg>
       </button>
     </div>
@@ -125,11 +125,12 @@ button:disabled{opacity:.55;}
 </div>
 
 <script>
+// === Game Logic ===
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
 
-function log(msg){const el=document.getElementById('log');el.innerHTML+=msg+"\n";el.scrollTop=el.scrollHeight;}
+function log(msg){const el=document.getElementById('log');el.innerHTML+=msg+"<br>";el.scrollTop=el.scrollHeight;}
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 function mkDeck(){const d=[];for(const s of SUITS){for(const r of RANKS){d.push({rank:r,suit:s});}}return shuffle(d);}
 function cardStr(c){return c?c.rank+c.suit:'—';}
@@ -149,55 +150,34 @@ function render(){
     btn.appendChild(cardEl); btn.addEventListener('click',()=>playCard(c)); handDiv.appendChild(btn);
   }
   document.getElementById('topCard').textContent=cardStr(topCard());
-  document.getElementById('activeSuit').textContent=state.activeSuit||topCard().suit;
-  document.getElementById('hint').textContent=state.hands['You'].length?'':'Start a new game to play.';
+  document.getElementById('activeSuit').textContent=state.activeSuit||topCard()?.suit||'–';
   updateBadges();
 }
 
+function startGame(){
+  Object.assign(state,{deck:mkDeck(),discard:[],hands:{},players:['You'],activeSuit:null,turnIdx:0,winner:null,awaitingSuit:false});
+  const bots=parseInt(document.getElementById('botCount').value);state.bots=bots;
+  for(let i=1;i<=bots;i++)state.players.push('Bot'+i);
+  for(const p of state.players)state.hands[p]=[];
+  for(let i=0;i<5;i++){for(const p of state.players){state.hands[p].push(drawCard(p));}}
+  let starter=drawCard('You');while(isEight(starter)){state.deck.unshift(starter);starter=drawCard('You');}
+  state.discard.push(starter);state.activeSuit=null;log("New game started!");render();document.getElementById('hint').textContent="Your move.";}
+
 function playCard(c){
-  if(!state.playerCanMove || !matches(c, topCard(), state.activeSuit)) return;
-  state.playerCanMove=false;
-  const idx = state.hands['You'].indexOf(c); if(idx >= 0) state.hands['You'].splice(idx,1);
-  state.discard.push(c); log(`You play ${cardStr(c)}`);
-  if(isEight(c)){ state.awaitingSuit=true; document.getElementById('suitModal').style.display='flex'; render(); }
-  else { state.activeSuit=null; if(state.hands['You'].length===0){state.winner='You'; log('🎉 You win!'); render(); return;} setTimeout(nextTurn,200); }
-  render();
-}
+  if(state.turnIdx!==0||state.awaitingSuit||state.winner)return;
+  if(!matches(c,topCard(),state.activeSuit)){log("Can't play "+cardStr(c));return;}
+  const hand=state.hands['You'];hand.splice(hand.indexOf(c),1);state.discard.push(c);state.activeSuit=null;
+  if(isEight(c)){state.awaitingSuit=true;document.getElementById('suitModal').style.display='flex';return;}
+  log("You played "+cardStr(c));if(hand.length===0){state.winner='You';log("<b>You win!</b>");}nextTurn();render();}
 
-function chooseSuit(s){ state.activeSuit=s; state.awaitingSuit=false; document.getElementById('suitModal').style.display='none'; log(`You choose suit ${s}`); setTimeout(nextTurn,200); }
-document.querySelectorAll('.suit-btn').forEach(b=>b.addEventListener('click',()=>chooseSuit(b.dataset.suit)));
+function nextTurn(){state.turnIdx=(state.turnIdx+1)%state.players.length;if(state.turnIdx===0){document.getElementById('hint').textContent="Your move.";render();}else{setTimeout(botMove,800);}}
 
-async function nextTurn(){
-  if(state.winner) return;
-  state.turnIdx=(state.turnIdx+1)%state.players.length;
-  state.playerCanMove=state.players[state.turnIdx]==='You';
-  updateBadges(); render();
-  if(!state.playerCanMove) await botTurn();
-}
+function botMove(){const bot=state.players[state.turnIdx];const hand=state.hands[bot];let opts=playable(hand);if(opts.length===0){let d;do{d=drawCard(bot);}while(d&&!matches(d,topCard(),state.activeSuit)&&state.deck.length>0);opts=playable(hand);}if(opts.length>0){const c=opts[Math.floor(Math.random()*opts.length)];hand.splice(hand.indexOf(c),1);state.discard.push(c);state.activeSuit=null;log(bot+" plays "+cardStr(c));if(isEight(c)){state.activeSuit=SUITS[Math.floor(Math.random()*4)];log(bot+" chooses suit "+state.activeSuit);}if(hand.length===0){state.winner=bot;log("<b>"+bot+" wins!</b>");return;}}else{log(bot+" cannot move.");}render();nextTurn();}
 
-async function botTurn(){
-  const bot=state.players[state.turnIdx]; let hand=state.hands[bot];
-  await new Promise(r=>setTimeout(r,400));
-  while(playable(hand).length===0){drawCard(bot); await new Promise(r=>setTimeout(r,300));}
-  const c=playable(hand)[0]; hand.splice(hand.indexOf(c),1); state.discard.push(c);
-  log(`${bot} plays ${cardStr(c)}`);
-  if(isEight(c)){state.activeSuit=SUITS[Math.floor(Math.random()*4)]; log(`${bot} chooses suit ${state.activeSuit}`);}
-  if(hand.length===0){state.winner=bot; log(`🎉 ${bot} wins!`); render(); return;}
-  render(); await new Promise(r=>setTimeout(r,400)); nextTurn();
-}
+document.getElementById('newGame').onclick=startGame;
+document.getElementById('drawBtn').onclick=function(){if(state.turnIdx!==0||state.awaitingSuit||state.winner)return;drawCard('You');render();};
 
-function newGame(){
-  state.deck=mkDeck(); state.discard=[]; state.hands={}; state.players=['You']; state.winner=null; state.activeSuit=null;
-  state.turnIdx=0; state.awaitingSuit=false; state.playerCanMove=true; state.bots=parseInt(document.getElementById('botCount').value);
-  for(let i=1;i<=state.bots;i++) state.players.push('Bot '+i);
-  for(const p of state.players) state.hands[p]=[]; for(const p of state.players) for(let j=0;j<5;j++) drawCard(p);
-  state.discard.push(state.deck.pop()); render();
-}
-
-document.getElementById('newGame').addEventListener('click',newGame);
-document.getElementById('drawBtn').addEventListener('click',()=>{
-  if(!state.playerCanMove||state.awaitingSuit) return; drawCard('You'); render();
-});
+document.querySelectorAll('.suit-btn').forEach(b=>b.addEventListener('click',()=>{state.activeSuit=b.dataset.suit;state.awaitingSuit=false;document.getElementById('suitModal').style.display='none';log("You choose suit "+state.activeSuit);if(state.hands['You'].length===0){state.winner='You';log("<b>You win!</b>");}else{nextTurn();}render();}));
 </script>
 </body>
 </html>
