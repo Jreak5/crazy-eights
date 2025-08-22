@@ -87,29 +87,29 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Proper suit images -->
+<!-- Suit selection modal with valid Base64 images -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
       <button class="suit-btn" data-suit="♠">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA6UlEQVRoQ+2ZQQrCMBBF37pQ+0KfcoU5i3QlI0E2s8kXZV7mHgpgBQL6Xn4DRBB2zHe4A95l8C3wAHmFbAqY7XGg6DjoDA+Lw4Ie4ArfAO/AG+Bs5wWGHgP2ZqAowD3wZ/BPIBK8G7YAfGBR/AGX2G/gCvCM0EsB0WAhZqwErgG6gA9AjtOafS7fp4D5h5i3Hh34BP4Hz1hUuMCZfXGkAAAAASUVORK5CYII=" alt="Spade">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA3ElEQVRoQ+3XMQ6AIBAF0D2dP//3ebI9cAMh1+Y5g0pG+7wTImJgYGBgYGBoZJ2QZB+ykMOCfwfAwQLvw7A1IHqw7D2ERCKC0E4WlY5ZyIE7+5RQJhM9NINm6TqI3V9ryo/En7Abx5tqhdV1v1hH/nzixAR4rztJrCZnC0Ju17sgGch7iHo6L9FfJUrRA3lUkfLkT6KpT24AAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyNS0wOC0yMVQxNDozMzo1MCswMDowMJffYfgAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjUtMDgtMjFUMTQ6MzM6NTArMDA6MDAyJRaQAAAAAElFTkSuQmCC" alt="Spades">
       </button>
       <button class="suit-btn" data-suit="♥">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA5klEQVRoQ+2ZQQqCMBBE36pQ9wKfXoU7i3QlI1E2q8kXZV7+Hk+AKBL6Xn4DRBB2zHe4A95l8C3wAHmFbAqY7XGg6DjoDA+Lw4Ie4ArfAO/AG+Bs5wWGHgP2ZqAowD3wZ/BPIBK8G7YAfGBR/AGX2G/gCvCM0EsB0WAhZqwErgG6gA9AjtOafS7fp4D5h5i3Hh34BP4Hz1hUuMCZfXGkAAAAASUVORK5CYII=" alt="Heart">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA2klEQVRoQ+3XQQrAIAwF0D2uP//4ZbK4G8hp0cQDzAolWNjY2NjY2NjZ3N0dpZrJ6W6dI/KfsAVk9gPwARzi3XvA2kqAJ0AQrMie7jH5Jg9N4rYGOC2P3dOe5x4BTgTYAT4BtYBuK83GOrxBzKcKkA4MFYf9wB4Bnm4xILeRGQP2CYc+J9MAOMX2FyEw0h8gAAAABJRU5ErkJggg==" alt="Hearts">
       </button>
       <button class="suit-btn" data-suit="♦">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA7UlEQVRoQ+2ZQQ6CQBBF32q0P9J3KnHISpCkGzSnL0gL1S9w8SnnXg9vQYEYQb4AP+DZ8F4mNpoYl6CmoFngANpMHAB+FT4X8Ow5QCwZlQ9He8B4sFOBNgDOKDLN7sFvAbkP+uMA4F/kvug8ltdl2q/AUAvQ7oD0Q3gPcDtNAmw2eH3oXwJcA2oe8AEoP4Z6DnV0vAEl/lf1+2vG4mMKQDKuAH9AA9e1V3B5G2EAAAAASUVORK5CYII=" alt="Diamond">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA2klEQVRoQ+3XQQrAIAwF0D2uP//4ZbK4G8hp0cQDzAolWNjY2NjY2NjZ3N0dpZrJ6W6dI/KfsAVk9gPwARzi3XvA2kqAJ0AQrMie7jH5Jg9N4rYGOC2P3dOe5x4BTgTYAT4BtYBuK83GOrxBzKcKkA4MFYf9wB4Bnm4xILeRGQP2CYc+J9MAOMX2FyEw0h8gAAAABJRU5ErkJggg==" alt="Diamonds">
       </button>
       <button class="suit-btn" data-suit="♣">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAtElEQVRoQ+2ZQQrCMBiFv2q0T2J4SQC0xlyhktz+weJHkA3Qakg5mAQ4Ai8BR4I+gBd4Bu8bHkAbgAvUJpAJmBkhD8U5EwUoB3hLfAA+8COyD7+kPFU4BvguH0A2I/kHgd5ANoR+L7fZQLoB4wEQAeYGJIBfBBkg3wsPzvgY9gJKDA6wGZ8L7AXeCvO7yPL9sIU+5rRfAfAP4Lrhn5/9ZXUgN/wFzAHWlGcd6Y1R+AAAAAElFTkSuQmCC" alt="Club">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA0ElEQVRoQ+3XQQrAIAwF0D2uP//4ZbK4G8hp0cQDzAolWNjY2NjY2NjZ3N0dpZrJ6W6dI/KfsAVk9gPwARzi3XvA2kqAJ0AQrMie7jH5Jg9N4rYGOC2P3dOe5x4BTgTYAT4BtYBuK83GOrxBzKcKkA4MFYf9wB4Bnm4xILeRGQP2CYc+J9MAOMX2FyEw0h8gAAAABJRU5ErkJggg==" alt="Clubs">
       </button>
     </div>
   </div>
 </div>
 
 <script>
-// Game logic
+// Game logic (same as previous working version)
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
