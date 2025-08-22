@@ -1,183 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Fixed Suit Icons</title>
-<style>
-:root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
-*{box-sizing:border-box;}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:16px;background:#f6f7fb;color:#111;}
-h1{font-size:1.4rem;margin:0 0 8px;}
-.row{display:flex;gap:var(--gap);flex-wrap:wrap;align-items:center;}
-.board{display:flex;flex-direction:column;gap:var(--gap);max-width:900px;margin:0 auto;}
-.panel{background:#fff;border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);}
-.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.badges{display:flex;gap:8px;flex-wrap:wrap;}
-.badge{background:#eef;border-radius:999px;padding:6px 10px;font-size:.9rem;}
-.controls{display:flex;gap:8px;flex-wrap:wrap;}
-button{padding:var(--btn-pad);border-radius:12px;border:0;background:#111;color:#fff;font-weight:600;box-shadow:var(--shadow);touch-action:manipulation;font-size:1rem;}
-button.secondary{background:#e5e7eb;color:#111;}
-button:disabled{opacity:.55;}
-.card{display:inline-flex;align-items:center;justify-content:center;padding:var(--card-pad);min-width:52px;height:72px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:700;box-shadow:var(--shadow);margin:4px;user-select:none;}
-.card.red{color:#c0262d;}
-.card.black{color:#111;}
-.card.small{min-width:44px;height:60px;font-size:.95rem;}
-.hand{display:flex;flex-wrap:wrap;}
-.hand button{background:transparent;border:none;padding:0;margin:0;}
-.subtle{color:#555;font-size:.95rem;}
-.discard{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.pile{display:flex;align-items:center;gap:8px;}
-.wide{width:100%;}
-.log{max-height:160px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.95rem;background:#0b1020;color:#e6edf3;border-radius:10px;padding:10px;}
-.log b{color:#ffcf55;}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:10;}
-.modal .sheet{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:var(--shadow);text-align:center;}
-.suit-grid{display:grid;grid-template-columns:repeat(2,minmax(80px,1fr));gap:12px;margin-top:10px;}
-.suit-btn{padding:10px;border-radius:12px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow);}
-.suit-btn svg{width:50px;height:50px;display:block;margin:0 auto;}
-.hint{font-size:.95rem;color:#334155;}
-.footer{font-size:.85rem;color:#64748b;margin-top:10px;}
-</style>
+  <meta charset="UTF-8">
+  <title>Crazy 8's</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #2e7d32; color: white; }
+    #game { margin: 20px; }
+    .hand, .bot-hand { display: flex; justify-content: center; margin: 10px; }
+    .card { width: 70px; height: 100px; border: 1px solid #fff; border-radius: 8px; background: white; color: black; display: flex; align-items: center; justify-content: center; margin: 5px; font-size: 20px; cursor: pointer; }
+    #suitModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 20px; border-radius: 10px; }
+    .suit-option { display: inline-block; width: 60px; height: 60px; margin: 10px; cursor: pointer; }
+    .suit-option svg { width: 100%; height: 100%; }
+  </style>
 </head>
 <body>
-<div class="board">
-  <div class="panel topline">
-    <h1>Crazy 8's – Fixed Suit Icons</h1>
-    <div class="badges">
-      <span class="badge" id="playersBadge">Players: –</span>
-      <span class="badge" id="deckBadge">Deck: –</span>
-      <span class="badge" id="turnBadge">Turn: –</span>
+  <h1>Crazy 8's Game</h1>
+  <button onclick="startGame()">New Game</button>
+  <div id="game">
+    <p>Top Card: <span id="topCard"></span></p>
+    <div id="playerHand" class="hand"></div>
+    <div id="botHands"></div>
+  </div>
+
+  <!-- Suit Picker Modal -->
+  <div id="suitModal">
+    <p>Pick a suit:</p>
+    <div class="suit-option" onclick="chooseSuit('♠')">
+      <svg viewBox="0 0 100 100">
+        <path d="M50 5 C20 35, 20 65, 50 95 C80 65, 80 35, 50 5 Z" fill="black"/>
+        <rect x="45" y="70" width="10" height="25" fill="black"/>
+      </svg>
+    </div>
+    <div class="suit-option" onclick="chooseSuit('♥')">
+      <svg viewBox="0 0 100 100">
+        <path d="M50 85 L10 35 A20 20 0 0 1 50 25 A20 20 0 0 1 90 35 Z" fill="red"/>
+      </svg>
+    </div>
+    <div class="suit-option" onclick="chooseSuit('♦')">
+      <svg viewBox="0 0 100 100">
+        <polygon points="50,5 95,50 50,95 5,50" fill="red"/>
+      </svg>
+    </div>
+    <div class="suit-option" onclick="chooseSuit('♣')">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="25" r="18" fill="black"/>
+        <circle cx="32" cy="50" r="18" fill="black"/>
+        <circle cx="68" cy="50" r="18" fill="black"/>
+        <rect x="45" y="50" width="10" height="30" fill="black"/>
+      </svg>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="row">
-      <div class="controls">
-        <label>Bots:
-          <select id="botCount">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-          </select>
-        </label>
-        <button id="newGame">New Game</button>
-        <button id="drawBtn" class="secondary">Draw</button>
-      </div>
-      <div class="wide discard">
-        <div class="pile">
-          <div><b>Top:</b> <span id="topCard" class="card small">–</span></div>
-          <div class="subtle">Active suit: <span id="activeSuit">None</span></div>
-        </div>
-        <div class="subtle"> | Bot hands: <span id="botCounts">–</span></div>
-      </div>
-    </div>
-  </div>
+  <script>
+    let deck = [], playerHand = [], bots = [], topCard = null;
 
-  <div class="panel">
-    <div><b>Your hand</b></div>
-    <div id="hand" class="hand"></div>
-    <div class="hint" id="hint">Start a new game to play.</div>
-  </div>
+    function createDeck() {
+      const suits = ['♠','♥','♦','♣'];
+      const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+      let newDeck = [];
+      for (let suit of suits) {
+        for (let value of values) {
+          newDeck.push({suit,value});
+        }
+      }
+      return newDeck.sort(() => Math.random() - 0.5);
+    }
 
-  <div class="panel">
-    <div><b>Game log</b></div>
-    <div id="log" class="log" aria-live="polite"></div>
-    <div class="footer">Rules: match rank or suit. 8s are wild—choose a suit. If you can't play, draw until you can.</div>
-  </div>
-</div>
+    function startGame() {
+      deck = createDeck();
+      playerHand = [];
+      bots = [[],[],[]]; // 3 bots
+      for (let i = 0; i < 5; i++) {   // FIX: Deal 5 cards, not 10
+        playerHand.push(deck.pop());
+        for (let b = 0; b < bots.length; b++) {
+          bots[b].push(deck.pop());
+        }
+      }
+      topCard = deck.pop();
+      renderGame();
+    }
 
-<!-- Fixed suit modal -->
-<div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="sheet">
-    <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
-    <div class="suit-grid">
-      <!-- Spade -->
-      <button class="suit-btn" data-suit="♠">
-        <svg viewBox="0 0 64 64">
-          <path d="M32 4 C12 28, 16 40, 32 52 C48 40, 52 28, 32 4 Z" fill="black"/>
-          <rect x="28" y="52" width="8" height="10" fill="black"/>
-        </svg>
-      </button>
-      <!-- Heart -->
-      <button class="suit-btn" data-suit="♥">
-        <svg viewBox="0 0 64 64">
-          <path d="M32 58 C12 36, 8 20, 20 14 C28 10, 32 16, 32 20 C32 16, 36 10, 44 14 C56 20, 52 36, 32 58 Z" fill="red"/>
-        </svg>
-      </button>
-      <!-- Diamond -->
-      <button class="suit-btn" data-suit="♦">
-        <svg viewBox="0 0 64 64">
-          <polygon points="32,4 60,32 32,60 4,32" fill="red"/>
-        </svg>
-      </button>
-      <!-- Club -->
-      <button class="suit-btn" data-suit="♣">
-        <svg viewBox="0 0 64 64">
-          <circle cx="32" cy="16" r="8" fill="black"/>
-          <circle cx="20" cy="32" r="8" fill="black"/>
-          <circle cx="44" cy="32" r="8" fill="black"/>
-          <path d="M28 32 Q32 36 36 32 L32 52 Z" fill="black"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
+    function renderGame() {
+      document.getElementById("topCard").innerText = topCard.value + topCard.suit;
+      const handDiv = document.getElementById("playerHand");
+      handDiv.innerHTML = "";
+      for (let card of playerHand) {
+        const c = document.createElement("div");
+        c.className = "card";
+        c.innerText = card.value + card.suit;
+        c.onclick = () => playCard(card);
+        handDiv.appendChild(c);
+      }
+      const botDiv = document.getElementById("botHands");
+      botDiv.innerHTML = "";
+      bots.forEach((bot,i) => {
+        let bDiv = document.createElement("div");
+        bDiv.className = "bot-hand";
+        bDiv.innerText = `Bot ${i+1}: ${bot.length} cards`;
+        botDiv.appendChild(bDiv);
+      });
+    }
 
-<script>
-// === Game Logic ===
-const SUITS=['♠','♥','♦','♣'];
-const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
+    function playCard(card) {
+      if (card.value === "8") {
+        showSuitModal();
+        playerHand = playerHand.filter(c => c !== card);
+      } else {
+        topCard = card;
+        playerHand = playerHand.filter(c => c !== card);
+      }
+      renderGame();
+    }
 
-function log(msg){const el=document.getElementById('log');el.innerHTML+=msg+"<br>";el.scrollTop=el.scrollHeight;}
-function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-function mkDeck(){const d=[];for(const s of SUITS){for(const r of RANKS){d.push({rank:r,suit:s});}}return shuffle(d);}
-function cardStr(c){return c?c.rank+c.suit:'—';}
-function isEight(c){return c.rank==='8';}
-function topCard(){return state.discard[state.discard.length-1];}
-function matches(c,top,activeSuit){if(!c||!top)return false;if(activeSuit)return c.suit===activeSuit||isEight(c);return c.rank===top.rank||c.suit===top.suit||isEight(c);}
-function reshuffleIfNeeded(){if(state.deck.length===0&&state.discard.length>1){const top=state.discard.pop();state.deck=shuffle(state.discard);state.discard=[top];log("[Deck reshuffled]");updateBadges();}}
-function drawCard(player){reshuffleIfNeeded();const c=state.deck.pop();state.hands[player].push(c);updateBadges();return c;}
-function playable(hand){return hand.filter(c=>matches(c,topCard(),state.activeSuit));}
-function updateBadges(){document.getElementById('deckBadge').textContent='Deck: '+state.deck.length;document.getElementById('playersBadge').textContent='Players: '+state.players.join(', ');document.getElementById('botCounts').textContent=state.players.slice(1).map(p=>state.hands[p].length).join(', ');document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx];}
+    function showSuitModal() {
+      document.getElementById("suitModal").style.display = "block";
+    }
 
-function render(){
-  const handDiv=document.getElementById('hand'); handDiv.innerHTML='';
-  for(const c of state.hands['You']){
-    const btn=document.createElement('button'); const cardEl=document.createElement('div');
-    cardEl.className='card '+((c.suit==='♥'||c.suit==='♦')?'red':'black'); cardEl.textContent=c.rank+c.suit;
-    btn.appendChild(cardEl); btn.addEventListener('click',()=>playCard(c)); handDiv.appendChild(btn);
-  }
-  document.getElementById('topCard').textContent=cardStr(topCard());
-  document.getElementById('activeSuit').textContent=state.activeSuit||topCard()?.suit||'–';
-  updateBadges();
-}
-
-function startGame(){
-  Object.assign(state,{deck:mkDeck(),discard:[],hands:{},players:['You'],activeSuit:null,turnIdx:0,winner:null,awaitingSuit:false});
-  const bots=parseInt(document.getElementById('botCount').value);state.bots=bots;
-  for(let i=1;i<=bots;i++)state.players.push('Bot'+i);
-  for(const p of state.players)state.hands[p]=[];
-  for(let i=0;i<5;i++){for(const p of state.players){state.hands[p].push(drawCard(p));}}
-  let starter=drawCard('You');while(isEight(starter)){state.deck.unshift(starter);starter=drawCard('You');}
-  state.discard.push(starter);state.activeSuit=null;log("New game started!");render();document.getElementById('hint').textContent="Your move.";}
-
-function playCard(c){
-  if(state.turnIdx!==0||state.awaitingSuit||state.winner)return;
-  if(!matches(c,topCard(),state.activeSuit)){log("Can't play "+cardStr(c));return;}
-  const hand=state.hands['You'];hand.splice(hand.indexOf(c),1);state.discard.push(c);state.activeSuit=null;
-  if(isEight(c)){state.awaitingSuit=true;document.getElementById('suitModal').style.display='flex';return;}
-  log("You played "+cardStr(c));if(hand.length===0){state.winner='You';log("<b>You win!</b>");}nextTurn();render();}
-
-function nextTurn(){state.turnIdx=(state.turnIdx+1)%state.players.length;if(state.turnIdx===0){document.getElementById('hint').textContent="Your move.";render();}else{setTimeout(botMove,800);}}
-
-function botMove(){const bot=state.players[state.turnIdx];const hand=state.hands[bot];let opts=playable(hand);if(opts.length===0){let d;do{d=drawCard(bot);}while(d&&!matches(d,topCard(),state.activeSuit)&&state.deck.length>0);opts=playable(hand);}if(opts.length>0){const c=opts[Math.floor(Math.random()*opts.length)];hand.splice(hand.indexOf(c),1);state.discard.push(c);state.activeSuit=null;log(bot+" plays "+cardStr(c));if(isEight(c)){state.activeSuit=SUITS[Math.floor(Math.random()*4)];log(bot+" chooses suit "+state.activeSuit);}if(hand.length===0){state.winner=bot;log("<b>"+bot+" wins!</b>");return;}}else{log(bot+" cannot move.");}render();nextTurn();}
-
-document.getElementById('newGame').onclick=startGame;
-document.getElementById('drawBtn').onclick=function(){if(state.turnIdx!==0||state.awaitingSuit||state.winner)return;drawCard('You');render();};
-
-document.querySelectorAll('.suit-btn').forEach(b=>b.addEventListener('click',()=>{state.activeSuit=b.dataset.suit;state.awaitingSuit=false;document.getElementById('suitModal').style.display='none';log("You choose suit "+state.activeSuit);if(state.hands['You'].length===0){state.winner='You';log("<b>You win!</b>");}else{nextTurn();}render();}));
-</script>
+    function chooseSuit(suit) {
+      topCard = {value: "8", suit};
+      document.getElementById("suitModal").style.display = "none";
+      renderGame();
+    }
+  </script>
 </body>
 </html>
