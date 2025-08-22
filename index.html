@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Polished Suit Modal</title>
+<title>Crazy 8's – Hand-style Suit Modal</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -33,9 +33,8 @@ button:disabled{opacity:.55;}
 .log b{color:#ffcf55;}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:10;}
 .modal .sheet{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:var(--shadow);text-align:center;}
-.suit-grid{display:grid;grid-template-columns:repeat(2,minmax(80px,1fr));gap:12px;margin-top:10px;}
-.suit-btn{padding:10px;border-radius:12px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow);}
-.suit-btn svg{width:50px;height:50px;display:block;margin:0 auto;}
+.suit-grid{display:flex;gap:12px;justify-content:center;margin-top:10px;}
+.suit-btn{padding:10px;border-radius:8px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow);min-width:52px;height:72px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;}
 .hint{font-size:.95rem;color:#334155;}
 .footer{font-size:.85rem;color:#64748b;margin-top:10px;}
 </style>
@@ -43,7 +42,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Polished Suit Modal</h1>
+    <h1>Crazy 8's – Hand-style Suit Modal</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -87,50 +86,20 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Updated modal: spade fixed, others unchanged -->
+<!-- Modal updated to hand-style suits -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
-      <!-- Spade (proper playing card style) -->
-      <button class="suit-btn" data-suit="♠" aria-label="Spades">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 4 
-                   C16 24, 16 36, 32 52 
-                   C48 36, 48 24, 32 4 
-                   Z" fill="black"/>
-          <circle cx="24" cy="36" r="6" fill="black"/>
-          <circle cx="40" cy="36" r="6" fill="black"/>
-          <rect x="28" y="36" width="8" height="16" fill="black"/>
-        </svg>
-      </button>
-      <!-- Heart -->
-      <button class="suit-btn" data-suit="♥" aria-label="Hearts">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 56 C10 36, 10 18, 24 14 C30 12, 32 16, 32 20 C32 16, 34 12, 40 14 C54 18, 54 36, 32 56 Z" fill="red"/>
-        </svg>
-      </button>
-      <!-- Diamond -->
-      <button class="suit-btn" data-suit="♦" aria-label="Diamonds">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <polygon points="32,4 60,32 32,60 4,32" fill="red"/>
-        </svg>
-      </button>
-      <!-- Club -->
-      <button class="suit-btn" data-suit="♣" aria-label="Clubs">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="32" cy="18" r="12" fill="black"/>
-          <circle cx="20" cy="36" r="12" fill="black"/>
-          <circle cx="44" cy="36" r="12" fill="black"/>
-          <path d="M28 36 L36 36 L34 56 L30 56 Z" fill="black"/>
-        </svg>
-      </button>
+      <button class="suit-btn" data-suit="♠">♠</button>
+      <button class="suit-btn" data-suit="♥" style="color:red;">♥</button>
+      <button class="suit-btn" data-suit="♦" style="color:red;">♦</button>
+      <button class="suit-btn" data-suit="♣">♣</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ===== Original working game logic (unchanged) ===== */
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
