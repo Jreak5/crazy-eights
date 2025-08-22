@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy Eights – Fully Working</title>
+<title>Crazy Eights – Fixed Version</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -42,7 +42,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy Eights – Fully Working</h1>
+    <h1>Crazy Eights – Fixed Version</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -99,10 +99,9 @@ button:disabled{opacity:.55;}
 </div>
 
 <script>
-// --- GAME LOGIC ---
 const SUITS = ['♠','♥','♦','♣'];
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const state = { deck: [], discard: [], hands: {}, players: [], activeSuit: null, turnIdx: 0, bots: 2, winner: null };
+const state = { deck: [], discard: [], hands: {}, players: [], activeSuit: null, turnIdx: 0, bots: 2, winner: null, awaitingSuit: false };
 
 function log(msg){ const el = document.getElementById('log'); el.innerHTML += msg + "\n"; el.scrollTop = el.scrollHeight; }
 function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
@@ -116,17 +115,14 @@ function matches(c,top,activeSuit){
   return c.rank===top.rank || c.suit===top.suit || isEight(c);
 }
 function reshuffleIfNeeded(){ 
-  if(state.deck.length===0){ 
-    if(state.discard.length>1){ 
+  if(state.deck.length===0 && state.discard.length>1){ 
       const top=state.discard.pop(); 
       state.deck=shuffle(state.discard); 
       state.discard=[top]; 
-      log("[Deck reshuffled]"); updateBadges(); 
-    } 
+      log("[Deck reshuffled]"); 
+      updateBadges();
   } 
 }
-
-// --- HELPER FUNCTIONS ---
 function drawCard(player){
   reshuffleIfNeeded();
   const c = state.deck.pop();
@@ -155,6 +151,7 @@ function render(){
   }
   document.getElementById('topCard').textContent = cardStr(topCard());
   document.getElementById('activeSuit').textContent = state.activeSuit||topCard().suit;
+  document.getElementById('hint').textContent = state.hands['You'].length ? '' : 'Start a new game to play.';
   updateBadges();
 }
 function playCard(c){
@@ -204,8 +201,6 @@ function botPlay(){
   if(state.turnIdx>0 && state.turnIdx<state.players.length-1) setTimeout(botPlay,500);
   else if(state.turnIdx===0) updateBadges();
 }
-
-// --- NEW GAME ---
 function newGame(){
   state.bots=parseInt(document.getElementById('botCount').value);
   state.deck=mkDeck();
@@ -217,9 +212,7 @@ function newGame(){
   state.activeSuit=null;
   state.winner=null;
   state.awaitingSuit=false;
-
   for(const p of state.players){ state.hands[p]=[]; for(let j=0;j<5;j++) drawCard(p); }
-
   let first;
   do{ first=state.deck.pop(); } while(first.rank==='8');
   state.discard.push(first);
@@ -227,15 +220,12 @@ function newGame(){
   log("\n--- New Game Started ---");
   render();
 }
-
-// --- EVENT LISTENERS ---
 document.getElementById('newGame').addEventListener('click',newGame);
 document.getElementById('drawBtn').addEventListener('click',()=>{
   if(state.awaitingSuit) return;
   drawCard('You');
   render();
 });
-
 </script>
 </body>
 </html>
