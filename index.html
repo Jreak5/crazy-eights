@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crazy Eights – Mobile</title>
+<style>
+:root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
+*{box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:16px;background:#f6f7fb;color:#111;}
+h1{font-size:1.4rem;margin:0 0 8px;}
+.row{display:flex;gap:var(--gap);flex-wrap:wrap;align-items:center;}
+.col{display:flex;flex-direction:column;gap:var(--gap);}
+.board{display:flex;flex-direction:column;gap:var(--gap);max-width:900px;margin:0 auto;}
+.panel{background:#fff;border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{background:#eef;border-radius:999px;padding:6px 10px;font-size:.9rem;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;}
+button{padding:var(--btn-pad);border-radius:12px;border:0;background:#111;color:#fff;font-weight:600;box-shadow:var(--shadow);touch-action:manipulation;}
+button.secondary{background:#e5e7eb;color:#111;}
+button:disabled{opacity:.55;}
+.card{display:inline-flex;align-items:center;justify-content:center;padding:var(--card-pad);min-width:52px;height:72px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:700;box-shadow:var(--shadow);margin:4px;user-select:none;}
+.card.red{color:#c0262d;}
+.card.black{color:#111;}
+.card.small{min-width:44px;height:60px;font-size:.95rem;}
+.hand{display:flex;flex-wrap:wrap;}
+.hand button{background:transparent;border:none;padding:0;margin:0;}
+.subtle{color:#555;font-size:.95rem;}
+.discard{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.pile{display:flex;align-items:center;gap:8px;}
+.wide{width:100%;}
+.log{max-height:160px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.95rem;background:#0b1020;color:#e6edf3;border-radius:10px;padding:10px;}
+.log b{color:#ffcf55;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:10;}
+.modal .sheet{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:var(--shadow);text-align:center;}
+.suit-grid{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:12px;margin-top:10px;}
+.suit-btn{font-size:1.4rem;padding:18px;border-radius:12px;border:2px solid #ddd;background:#fff;box-shadow:var(--shadow);}
+.hint{font-size:.95rem;color:#334155;}
+.footer{font-size:.85rem;color:#64748b;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="board">
+  <div class="panel topline">
+    <h1>Crazy Eights – Mobile</h1>
+    <div class="badges">
+      <span class="badge" id="playersBadge">Players: –</span>
+      <span class="badge" id="deckBadge">Deck: –</span>
+      <span class="badge" id="turnBadge">Turn: –</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="controls">
+        <label>Bots:
+          <select id="botCount">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+          </select>
+        </label>
+        <button id="newGame">New Game</button>
+        <button id="drawBtn" class="secondary">Draw</button>
+      </div>
+      <div class="wide discard">
+        <div class="pile">
+          <div><b>Top:</b> <span id="topCard" class="card small">–</span></div>
+          <div class="subtle">Active suit: <span id="activeSuit">None</span></div>
+        </div>
+        <div class="subtle"> | Bot hands: <span id="botCounts">–</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div><b>Your hand</b></div>
+    <div id="hand" class="hand"></div>
+    <div class="hint" id="hint">Start a new game to play.</div>
+  </div>
+
+  <div class="panel">
+    <div><b>Game log</b></div>
+    <div id="log" class="log" aria-live="polite"></div>
+    <div class="footer">Rules: match rank or suit. 8s are wild—choose a suit. If you can't play, draw until you can.</div>
+  </div>
+</div>
+
+<div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="sheet">
+    <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
+    <div class="suit-grid">
+      <button class="suit-btn" data-suit="♠">♠ Spades</button>
+      <button class="suit-btn" data-suit="♥">♥ Hearts</button>
+      <button class="suit-btn" data-suit="♦">♦ Diamonds</button>
+      <button class="suit-btn" data-suit="♣">♣ Clubs</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- GAME LOGIC ---
+const SUITS = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const state = { deck: [], discard: [], hands: {}, players: [], activeSuit: null, turnIdx: 0, bots: 2, winner: null };
+
+function log(msg){ const el = document.getElementById('log'); el.innerHTML += msg + "\n"; el.scrollTop = el.scrollHeight; }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function mkDeck(){ const d=[]; for(const s of SUITS){ for(const r of RANKS){ d.push({rank:r,suit:s}); } } return shuffle(d); }
+function cardStr(c){ return c ? c.rank+c.suit : '—'; }
+function isEight(c){ return c.rank==='8'; }
+function matches(c,top,activeSuit){ if(!c||!top) return false; if(activeSuit){ return c.suit===activeSuit || isEight(c); } return c.rank===top.rank || c.suit===top.suit || isEight(c); }
+function reshuffleIfNeeded(){ if(state.deck.length===0){ if(state.discard.length>1){ const top=state.discard.pop(); state.deck=shuffle(state.discard); state.discard=[top]; log("[Deck reshuffled]"); updateBadges(); } } }
+function topCard(){ return state.discard[state.discard.length-1]; }
+function playable(hand){ const t=topCard(); return hand.filter(c=>matches(c,t,state.activeSuit)); }
+function countBySuit(arr){ const m={'♠':0,'♥':0,'♦':0,'♣':0}; for(const c of arr){ m[c.suit] = (m[c.suit]||0)+1; } return m; }
+function botChooseSuit(hand){ const by=countBySuit(hand); let best='♠',bestN=-1; for(const s of SUITS){ if(by[s]>bestN){ best=s; bestN=by[s]; } } return best; }
+function botChoosePlay(options){ const t=topCard(); const non8 = options.filter(c=>!isEight(c)); if(non8.length){ const exact=non8.find(c=>c.rank===t.rank&&c.suit===t.suit); if(exact) return exact; const rankMatch=non8.find(c=>c.rank===t.rank); if(rankMatch) return rankMatch; const suitToMatch=state.activeSuit||t.suit; const suitMatch=non8.find(c=>c.suit===suitToMatch); if(suitMatch) return suitMatch; return non8[0]; } return options[0]; }
+
+function newGame(){ state.deck=mkDeck(); state.discard=[]; state.hands={}; state.players=['You']; for(let i=0;i<state.bots;i++){ state.players.push('Bot '+(i+1)); } state.turnIdx=0; state.activeSuit=null; state.winner=null; document.getElementById('log').textContent=''; deal(); render(); log('New game: You vs '+state.bots+' bot(s).'); setTimeout(takeTurn,350); }
+function deal(){ for(const p of state.players){ state.hands[p]=[]; } for(let r=0;r<5;r++){ for(const p of state.players){ state.hands[p].push(state.deck.pop()); } } let top=state.deck.pop(); let guard=0; while(top&&isEight(top)&&guard<52){ state.deck.unshift(top); shuffle(state.deck); top=state.deck.pop(); guard++; } if(!top){ top={rank:'A',suit:'♠'}; } state.discard.push(top); state.activeSuit=null; }
+
+function updateBadges(){ document.getElementById('playersBadge').textContent='Players: '+state.players.length; document.getElementById('deckBadge').textContent='Deck: '+state.deck.length; document.getElementById('turnBadge').textContent='Turn: '+state.players[state.turnIdx]; const botCounts=state.players.slice(1).map(p=>state.hands[p].length+' cards').join(' • '); document.getElementById('botCounts').textContent=botCounts||'—'; }
+
+function render(){ const top=topCard(); const topEl=document.getElementById('topCard'); topEl.textContent=cardStr(top); topEl.className='card small '+((top&&(top.suit==='♥'||top.suit==='♦'))?'red':'black'); document.getElementById('activeSuit').textContent=state.activeSuit||'None'; updateBadges(); const handEl=document.getElementById('hand'); handEl.innerHTML=''; const hand=state.hands['You']; const opts=playable(hand); const hint=document.getElementById('hint'); const drawBtn=document.getElementById('drawBtn'); for(let i=0;i<hand.length;i++){ const c=hand[i]; const btn=document.createElement('button'); btn.disabled=state.winner||state.players[state.turnIdx]!=='You'?true:false; const div=document.createElement('div'); div.className='card '+((c.suit==='♥'||c.suit==='♦')?'red':'black'); div.textContent=cardStr(c); if(opts.find(o=>o===c)){ div.style.outline='3px solid #4ade80'; }else{ div.style.opacity='0.6'; } btn.appendChild(div); btn.addEventListener('click',()=>playCard('You',c)); handEl.appendChild(btn); } if(state.players[state.turnIdx]==='You'){ if(opts.length===0){ hint.textContent="No playable cards. Tap Draw to draw until you can play (auto-plays the last drawn card)."; }else{ hint.textContent="Tap a highlighted card to play, or Draw if you prefer."; } drawBtn.disabled=!!state.winner; }else{ hint.textContent="Bots are playing..."; drawBtn.disabled=true; } }
+
+function showSuitPicker(onPick){ const modal=document.getElementById('suitModal'); modal.style.display='flex'; function handler(ev){ const s=ev.target.getAttribute('data-suit'); if(!s) return; modal.style.display='none'; for(const b of modal.querySelectorAll('.suit-btn')){ b.removeEventListener('click',handler); } onPick(s); } for(const b of modal.querySelectorAll('.suit-btn')){ b.addEventListener('click',handler); } }
+
+function playCard(player,card,auto=false){ if(!card||state.winner) return; const hand=state.hands[player]; const idx=hand.indexOf(card); if(idx<0) return; hand.splice(idx,1); state.discard.push(card); state.activeSuit=null; log(player+' played '+cardStr(card)); if(isEight(card)){ if(player==='You'){ showSuitPicker(s=>{ state.activeSuit=s; render(); setTimeout(takeTurn,350); }); return; }else{ state.activeSuit=botChooseSuit(hand); log(player+' changed suit to '+state.activeSuit); } } if(hand.length===0){ state.winner=player; log(player+' wins!'); render(); return; } render(); state.turnIdx=(state.turnIdx+1)%state.players.length; if(!auto) setTimeout(takeTurn,350); }
+
+function drawCard(player){ reshuffleIfNeeded(); if(state.deck.length===0) return null; const c=state.deck.pop(); state.hands[player].push(c); log(player+' drew a card: '+cardStr(c)); return c; }
+
+function drawUntilPlayable(player){ let drew=0; while(true){ const c=drawCard(player); drew++; if(!c) break; if(matches(c,topCard(),state.activeSuit)){ playCard(player,c,true); break; } } render(); }
+
+function takeTurn(){ if(state.winner) return; const player=state.players[state.turnIdx]; if(player==='You') return; const hand=state.hands[player]; const options=playable(hand); if(options.length===0){ drawUntilPlayable(player); }else{ const choice=botChoosePlay(options); playCard(player,choice,true); } setTimeout(()=>{ if(state.players[state.turnIdx]!=='You') takeTurn(); },350); }
+
+document.getElementById('newGame').addEventListener('click',()=>{ state.bots=parseInt(document.getElementById('botCount').value); newGame(); });
+document.getElementById('drawBtn').addEventListener('click',()=>{ drawUntilPlayable('You'); });
+
+window.addEventListener('load',()=>{ updateBadges(); });
+</script>
+</body>
+</html>
