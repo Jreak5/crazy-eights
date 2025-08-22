@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crazy 8's – Embedded Suit Images</title>
+<title>Crazy 8's – Correct Suit Images</title>
 <style>
 :root{--gap:10px;--card-pad:10px;--btn-pad:12px 16px;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,.15);}
 *{box-sizing:border-box;}
@@ -43,7 +43,7 @@ button:disabled{opacity:.55;}
 <body>
 <div class="board">
   <div class="panel topline">
-    <h1>Crazy 8's – Embedded Suit Images</h1>
+    <h1>Crazy 8's – Correct Suit Images</h1>
     <div class="badges">
       <span class="badge" id="playersBadge">Players: –</span>
       <span class="badge" id="deckBadge">Deck: –</span>
@@ -87,29 +87,29 @@ button:disabled{opacity:.55;}
   </div>
 </div>
 
-<!-- Embedded Base64 suit modal -->
+<!-- Correct Base64 suit modal -->
 <div class="modal" id="suitModal" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="sheet">
     <div style="font-weight:700;margin-bottom:6px">Pick a suit</div>
     <div class="suit-grid">
       <button class="suit-btn" data-suit="♠">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABN0lEQVRoQ+3ZwQnCMBiG4fY9IqX9kIr1QE+FBKvRYCTY5h80nE5+ZmYhzQBBEoJzpzfjGRw+kDWAIH3A7wRyxQj6R0R/KHYDbkpqS6Y7fT1R7AI6YkO3ZkO3SkBrcACG4G3rRwe6uAiucTNgfI+OXPL3RjM+gFgi5nHvz6f3zFl9E9szpwJ5c6ye++1M4rHf7GAHci/wlH2oCnvHhH+YCl0x9YKq8uFvlXCKV5B+uX5D+KQ4h3rAKviWJ3c/j6p9Q0tpx6Gn/0U0CwC0eX71f4E0hO+p6L6B7H0AEfQJkX+0JHgD3HTgm9UQDwAAAABJRU5ErkJggg==" alt="Spade">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA1ElEQVRoQ+2ZQQ6CQBBF32q0DyJ+XWi4jLCSQDoZl5Ky9l3RrHhZ7sg2CX4bO0EJoAm8ALP0Y8EnBYI8B6yEELiX6O2Cz3wmUGaZz2wNkqkEMMbn7u2v3dzVLCdg8BsGd4X4CwPDw0O5gShgzSDPzD8BxUDijQQMgf6dVxHc4kIIkXH/8wB95WgR+0mJqhrKwYzRwC08FzYLoZ7H+7kH3dRSs8u5T2AZgMy6OH/AXxZ6gTxq1BgAAAAASUVORK5CYII=" alt="Spade">
       </button>
       <button class="suit-btn" data-suit="♥">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABKklEQVRoQ+3YQQ6CMBiG4UfN/IK7pUyHQEXt0UZENjJ2mhhch98ZMz1AgFCAw1N7xNn6IzgJswI4Qwg7QMu6bLqAGuA5wTvUrxLRq19AkZsNZoBl4ALnGmXyLtnG1s6IRj2I+f6Hu/hL8ANXDY0exR2QAvQ+ZpA6ID6HSh1FfUpA9m8BXQz+OAnSHPA0A5IEdS5x0g/SDZrwL3Xv4Am4Dr9gQ/m0F5r6I1Yf9/8rAGg4yV34Uq7q1lP3CWotU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3otU3o1U3of8gX6zO0L1a1xwAAAABJRU5ErkJggg==" alt="Heart">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAA7klEQVRoQ+2ZQQrCQBCE/7pQaB+j3LgiTNSL1Sg6ll3sCBqZvI8QkOgCkA48Ak+Az0I8W+6kgD2gPkhUARoD5YNsAeoAuQgAkg+0dBQ90bJ9pwFcdANg+YCeAdy5OiWcAwBPYO4I+FbH95JeLVCFCPgEoO3bHEA5ALYcREg9bW6k4/hqBzY6ieIKfA2A0iH5F4OdHDLYFboJ0G8J8DcA1hsAb+qkBPMo2ucRJsDU6vEDfxzGfnsIBbktH86K6k3xkXyCcX0FV7ZVqJYAAAAASUVORK5CYII=" alt="Heart">
       </button>
       <button class="suit-btn" data-suit="♦">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABHklEQVRoQ+3YsQ2AIBAF0P3/aq3IiW07i1kHwY3UkZ0gDheZ94lWJAAwAfgG9x7MPiIecA6gAdx7UVkCiENYAtwIdoB6UDXkIemGxVQHI6QbKi5AHX+jkJeALdVdxV0F7EA7s0V+wXqA5sUAvtW0F+cQ2vIAveNwCjAuvHEq1AHngfTjW9kQaJ+rMPf+Ee7gBqAbq4EXrANg9UJXgN0D1AdWAc6AXd+XfM+Qbo9yQFfAfe1bCFb9Q6nEZbqX+lrxC0kXUtUM0v08Kf4v5HcCdzl+VAAAAAElFTkSuQmCC" alt="Diamond">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAsUlEQVRoQ+2ZQQ6CQBBF32q0P9J3KnHISpCkGzSnL0gL1S9w8SnnXg9vQYEYQb4AP+DZ8F4mNpoYl6CmoFngANpMHAB+FT4X8Ow5QCwZlQ9He8B4sFOBNgDOKDLN7sFvAbkP+uMA4F/kvug8ltdl2q/AUAvQ7oD0Q3gPcDtNAmw2eH3oXwJcA2oe8AEoP4Z6DnV0vAEl/lf1+2vG4mMKQDKuAH9AA9e1V3B5G2EAAAAASUVORK5CYII=" alt="Diamond">
       </button>
       <button class="suit-btn" data-suit="♣">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABH0lEQVRoQ+3YsQ2AMAwF0P3f8KsyInKkP9DEnBESQgX+E2bpgKcApAAbgR1xVv0BQgWcBfQOegI6qDkA36zXALcAvkHcBm9ZX0F7EA7s0V+wXqA5sUAvtW0F+cQ2vIAveNwCjAuvHEq1AHngfTjW9kQaJ+rMPf+Ee7gBqAbq4EXrANg9UJXgN0D1AdWAc6AXd+XfM+Qbo9yQFfAfe1bCFb9Q6nEZbqX+lrxC0kXUtUM0v08Kf4v5HcCdzl+VAAAAAElFTkSuQmCC" alt="Club">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAtElEQVRoQ+2ZQQrCMBiFv2q0T2J4SQC0xlyhktz+weJHkA3Qakg5mAQ4Ai8BR4I+gBd4Bu8bHkAbgAvUJpAJmBkhD8U5EwUoB3hLfAA+8COyD7+kPFU4BvguH0A2I/kHgd5ANoR+L7fZQLoB4wEQAeYGJIBfBBkg3wsPzvgY9gJKDA6wGZ8L7AXeCvO7yPL9sIU+5rRfAfAP4Lrhn5/9ZXUgN/wFzAHWlGcd6Y1R+AAAAAElFTkSuQmCC" alt="Club">
       </button>
     </div>
   </div>
 </div>
 
 <script>
-// Core game JS (same as fully working version)
+// Game logic same as fully working version
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const state={deck:[],discard:[],hands:{},players:[],activeSuit:null,turnIdx:0,bots:2,winner:null,awaitingSuit:false,playerCanMove:true};
